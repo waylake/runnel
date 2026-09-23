@@ -106,20 +106,28 @@ def _active_decode_estimate(
     experts_per_token = int(text["num_experts_per_tok"])
     layer_types = list(text["layer_types"])
     quantization = config.get("quantization", {})
-    bits = int(quantization.get("bits", 16))
-    group_size = int(quantization.get("group_size", 1) or 1)
-    values_per_u32 = 32 // bits
+    default_bits = int(quantization.get("bits", 16))
+    default_group_size = int(quantization.get("group_size", 1) or 1)
     nominal_bandwidth_gbps = 400.0
+
+    def quantization_spec(name: str) -> tuple[int, int]:
+        override = quantization.get(name, {})
+        return (
+            int(override.get("bits", default_bits)),
+            int(override.get("group_size", default_group_size) or 1),
+        )
 
     def logical_numel(name: str) -> int:
         metadata = tensor_headers[name]
         elements = _shape_product(metadata["shape"])
-        return elements * values_per_u32 if metadata["dtype"] == "U32" else elements
+        bits, _ = quantization_spec(name)
+        return elements * (32 // bits) if metadata["dtype"] == "U32" else elements
 
     def active_bytes(name: str) -> int:
         metadata = tensor_headers[name]
         parameters = logical_numel(name)
         if metadata["dtype"] == "U32":
+            bits, group_size = quantization_spec(name)
             # Packed values plus BF16 scale and bias for each affine group.
             return round(parameters * (bits / 8.0 + 4.0 / group_size))
         return parameters * 2
