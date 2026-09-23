@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "name": "oMLX signed macOS app",
+  "version": "0.7.0.dev4",
+  "app_build": "2761",
+  "bundle_identifier": "app.omlx",
+  "signed_at_utc": "2026-09-18T15:26:38Z",
+  "team_identifier": "PSK5Q5T46L",
+  "python": "3.11.10",
+  "packages": {
+    "omlx": "0.7.0.dev4",
+    "mlx": "0.32.2",
+    "mlx-lm": "0.32.0",
+    "transformers": "5.17.0",
+    "safetensors": "0.8.0",
+    "tokenizers": "0.23.2",
+    "dflash-mlx": "0.1.10+omlx.7"
+  },
+  "custom_kernels": {
+    "bonsai": "32c597baeefb9aefe288d8eaa38c19cfc2a976bbe7de34f665dd535b02e4da19",
+    "decode_fast": "cda6816d0d25e1ab7b59b6d1c5d336610da30577fc17e8feace5bf28a48717b1",
+    "glm_moe_dsa": "7065e53afab87af7ebef5e1a62e24decc6832ca2eca5ae04adf418699cd528c3",
+    "minimax_m3": "47d1690fec674cfb39ab35b09a24df76b9dba55503f4e4392eefa046d812a664",
+    "qwen35_prefill": "7b8544e8142b432ea16725744162c7d3e90704a885cb528fe6a0bdd9ffada9ea"
+  }
+}

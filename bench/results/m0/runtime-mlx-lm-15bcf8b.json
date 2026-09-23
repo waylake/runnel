@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "name": "mlx-lm source build",
+  "source_commit": "15bcf8b929e5da67aa7f8fe6feda7fb9eda00050",
+  "packages": {
+    "mlx-lm": "0.32.0",
+    "mlx": "0.32.2",
+    "transformers": "5.17.0",
+    "numpy": "2.5.3",
+    "tokenizers": "0.23.2",
+    "safetensors": "0.8.0"
+  },
+  "python": "3.12.12",
+  "gdn_packed_kernel": true,
+  "native_libraries": {
+    "libmlx.dylib": "d24c7a9b9d55a76bfd3bbcd1d042251a185cbadcb6340c3244a6ffa3dcb7c7e8",
+    "libjaccl.dylib": "9cfd72679ff35c593a1d46fd30d995cc4a131eed15733617efb1118001e74084"
+  }
+}

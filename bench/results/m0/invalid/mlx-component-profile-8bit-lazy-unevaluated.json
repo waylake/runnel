@@ -1,0 +1,751 @@
+{
+  "correctness": {
+    "reference": "component timings only; model output is not generated",
+    "status": "not-compared"
+  },
+  "created_at_utc": "2026-09-23T16:30:19.387522+00:00",
+  "empty_sync_overhead": {
+    "mad": 2e-06,
+    "max": 5e-05,
+    "median": 4.7e-05,
+    "min": 3.7e-05,
+    "n": 3
+  },
+  "engine": {
+    "mlx_version": "0.32.2",
+    "name": "mlx-lm-component-profile",
+    "runtime_manifest": "runtime-mlx-lm-0.31.3.json",
+    "runtime_version": "0.31.3"
+  },
+  "invalid_reason": " profiler synchronized without mx.eval, so lazy component graphs were not executed",
+  "measurements": [
+    {
+      "component": "gated_delta_net",
+      "context_tokens": 1,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 36.827986,
+        "median": 36.827986,
+        "min": 36.827986,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000292
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000245
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000181
+        }
+      ],
+      "summary": {
+        "mad": 4.7e-05,
+        "max": 0.000292,
+        "median": 0.000245,
+        "min": 0.000181,
+        "n": 3
+      }
+    },
+    {
+      "component": "full_attention",
+      "context_tokens": 1,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 36.827986,
+        "median": 36.827986,
+        "min": 36.827986,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000157
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000167
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000169
+        }
+      ],
+      "summary": {
+        "mad": 2e-06,
+        "max": 0.000169,
+        "median": 0.000167,
+        "min": 0.000157,
+        "n": 3
+      }
+    },
+    {
+      "component": "moe_block",
+      "context_tokens": 1,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 0.0,
+        "median": 0.0,
+        "min": 0.0,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.00023
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000163
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000181
+        }
+      ],
+      "summary": {
+        "mad": 1.8e-05,
+        "max": 0.00023,
+        "median": 0.000181,
+        "min": 0.000163,
+        "n": 3
+      }
+    },
+    {
+      "component": "lm_head_all_positions",
+      "context_tokens": 1,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 0.0,
+        "median": 0.0,
+        "min": 0.0,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000119
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.00012
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000115
+        }
+      ],
+      "summary": {
+        "mad": 1e-06,
+        "max": 0.00012,
+        "median": 0.000119,
+        "min": 0.000115,
+        "n": 3
+      }
+    },
+    {
+      "component": "lm_head_last_position",
+      "context_tokens": 1,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 0.0,
+        "median": 0.0,
+        "min": 0.0,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000164
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000134
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000112
+        }
+      ],
+      "summary": {
+        "mad": 2.2e-05,
+        "max": 0.000164,
+        "median": 0.000134,
+        "min": 0.000112,
+        "n": 3
+      }
+    },
+    {
+      "component": "gated_delta_net",
+      "context_tokens": 512,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 36.827986,
+        "median": 36.827986,
+        "min": 36.827986,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000236
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000241
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000209
+        }
+      ],
+      "summary": {
+        "mad": 5e-06,
+        "max": 0.000241,
+        "median": 0.000236,
+        "min": 0.000209,
+        "n": 3
+      }
+    },
+    {
+      "component": "full_attention",
+      "context_tokens": 512,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 36.827986,
+        "median": 36.827986,
+        "min": 36.827986,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000183
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000172
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.00016
+        }
+      ],
+      "summary": {
+        "mad": 1.1e-05,
+        "max": 0.000183,
+        "median": 0.000172,
+        "min": 0.00016,
+        "n": 3
+      }
+    },
+    {
+      "component": "moe_block",
+      "context_tokens": 512,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 36.827986,
+        "median": 36.827986,
+        "min": 36.827986,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000275
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000219
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000205
+        }
+      ],
+      "summary": {
+        "mad": 1.4e-05,
+        "max": 0.000275,
+        "median": 0.000219,
+        "min": 0.000205,
+        "n": 3
+      }
+    },
+    {
+      "component": "lm_head_all_positions",
+      "context_tokens": 512,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 0.0,
+        "median": 0.0,
+        "min": 0.0,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000126
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000132
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000168
+        }
+      ],
+      "summary": {
+        "mad": 6e-06,
+        "max": 0.000168,
+        "median": 0.000132,
+        "min": 0.000126,
+        "n": 3
+      }
+    },
+    {
+      "component": "lm_head_last_position",
+      "context_tokens": 512,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 0.0,
+        "median": 0.0,
+        "min": 0.0,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000124
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000145
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000153
+        }
+      ],
+      "summary": {
+        "mad": 8e-06,
+        "max": 0.000153,
+        "median": 0.000145,
+        "min": 0.000124,
+        "n": 3
+      }
+    },
+    {
+      "component": "gated_delta_net",
+      "context_tokens": 2048,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 36.827986,
+        "median": 36.827986,
+        "min": 36.827986,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000228
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000237
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000217
+        }
+      ],
+      "summary": {
+        "mad": 9e-06,
+        "max": 0.000237,
+        "median": 0.000228,
+        "min": 0.000217,
+        "n": 3
+      }
+    },
+    {
+      "component": "full_attention",
+      "context_tokens": 2048,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 36.827986,
+        "median": 36.827986,
+        "min": 36.827986,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000172
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000155
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000168
+        }
+      ],
+      "summary": {
+        "mad": 4e-06,
+        "max": 0.000172,
+        "median": 0.000168,
+        "min": 0.000155,
+        "n": 3
+      }
+    },
+    {
+      "component": "moe_block",
+      "context_tokens": 2048,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 36.827986,
+        "median": 36.827986,
+        "min": 36.827986,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000228
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000215
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000223
+        }
+      ],
+      "summary": {
+        "mad": 5e-06,
+        "max": 0.000228,
+        "median": 0.000223,
+        "min": 0.000215,
+        "n": 3
+      }
+    },
+    {
+      "component": "lm_head_all_positions",
+      "context_tokens": 2048,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 0.0,
+        "median": 0.0,
+        "min": 0.0,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 0.0,
+          "seconds": 8.9e-05
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000148
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000106
+        }
+      ],
+      "summary": {
+        "mad": 1.7e-05,
+        "max": 0.000148,
+        "median": 0.000106,
+        "min": 8.9e-05,
+        "n": 3
+      }
+    },
+    {
+      "component": "lm_head_last_position",
+      "context_tokens": 2048,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 0.0,
+        "median": 0.0,
+        "min": 0.0,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000117
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000126
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000182
+        }
+      ],
+      "summary": {
+        "mad": 9e-06,
+        "max": 0.000182,
+        "median": 0.000126,
+        "min": 0.000117,
+        "n": 3
+      }
+    },
+    {
+      "component": "gated_delta_net",
+      "context_tokens": 8192,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 36.827986,
+        "median": 36.827986,
+        "min": 36.827986,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000231
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000245
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000181
+        }
+      ],
+      "summary": {
+        "mad": 1.4e-05,
+        "max": 0.000245,
+        "median": 0.000231,
+        "min": 0.000181,
+        "n": 3
+      }
+    },
+    {
+      "component": "full_attention",
+      "context_tokens": 8192,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 36.827986,
+        "median": 36.827986,
+        "min": 36.827986,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000175
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.00017
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000193
+        }
+      ],
+      "summary": {
+        "mad": 5e-06,
+        "max": 0.000193,
+        "median": 0.000175,
+        "min": 0.00017,
+        "n": 3
+      }
+    },
+    {
+      "component": "moe_block",
+      "context_tokens": 8192,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 36.827986,
+        "median": 36.827986,
+        "min": 36.827986,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000186
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.00019
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 36.827986,
+          "seconds": 0.000219
+        }
+      ],
+      "summary": {
+        "mad": 4e-06,
+        "max": 0.000219,
+        "median": 0.00019,
+        "min": 0.000186,
+        "n": 3
+      }
+    },
+    {
+      "component": "lm_head_all_positions",
+      "context_tokens": 8192,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 0.0,
+        "median": 0.0,
+        "min": 0.0,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.00012
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000141
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.00012
+        }
+      ],
+      "summary": {
+        "mad": 0.0,
+        "max": 0.000141,
+        "median": 0.00012,
+        "min": 0.00012,
+        "n": 3
+      }
+    },
+    {
+      "component": "lm_head_last_position",
+      "context_tokens": 8192,
+      "peak_memory_gb": {
+        "mad": 0.0,
+        "max": 0.0,
+        "median": 0.0,
+        "min": 0.0,
+        "n": 3
+      },
+      "records": [
+        {
+          "index": 0,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000153
+        },
+        {
+          "index": 1,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000145
+        },
+        {
+          "index": 2,
+          "peak_memory_gb": 0.0,
+          "seconds": 0.000133
+        }
+      ],
+      "summary": {
+        "mad": 8e-06,
+        "max": 0.000153,
+        "median": 0.000145,
+        "min": 0.000133,
+        "n": 3
+      }
+    }
+  ],
+  "protocol": {
+    "batch_size": 1,
+    "cache_state": "fresh component inputs; no persistent generation cache",
+    "contexts": [
+      1,
+      512,
+      2048,
+      8192
+    ],
+    "input": "fixed-seed random BF16 activations",
+    "sampling": null,
+    "semantic_mode": "baseline",
+    "synchronization": "mx.synchronize after each isolated component",
+    "trials_requested": 3,
+    "warmups": 1
+  },
+  "provenance": {
+    "checkpoint_manifest_sha256": "4ca4e1a78b0524998f26c5039ca1882a0ed6f5f738011aa345a3b8a521a9e026",
+    "checkpoint_revision": "02440c39bdf7365c494a7f55f2a8b104ba87562f",
+    "environment_capture_sha256": "fb78f030c69fa87512830758a6b20f9c1ba8c2e0d82dc617d298c4df20aecc73",
+    "repository_commit": "698bc10c571687a8672290fa8f10861830a0ef3e",
+    "repository_dirty": false
+  },
+  "schema_version": 1,
+  "summary": {
+    "successful_trials": 60
+  },
+  "valid": false
+}

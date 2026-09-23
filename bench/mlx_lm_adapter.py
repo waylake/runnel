@@ -444,6 +444,7 @@ def main() -> int:
         },
         "trials": trials,
         "summary": {
+            "successful_trials": len(measured),
             "ttft_s": summarize([item["ttft_s"] for item in measured]),
             "end_to_end_s": summarize([item["end_to_end_s"] for item in measured]),
             "reported_generation_tokens_per_second": summarize(

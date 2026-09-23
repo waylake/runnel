@@ -1,0 +1,240 @@
+{
+  "captured_at_utc": "2026-09-23T16:13:53.351146+00:00",
+  "counters": {
+    "gpu_counters": "not captured by this stdlib probe",
+    "powermetrics": "not run: requires elevated privileges and is opt-in"
+  },
+  "displays": {
+    "SPDisplaysDataType": [
+      {
+        "_name": "Apple M1 Max",
+        "spdisplays_mtlgpufamilysupport": "spdisplays_metal4",
+        "spdisplays_ndrvs": [
+          {
+            "_name": "Color LCD",
+            "_spdisplays_display-product-id": "a050",
+            "_spdisplays_display-vendor-id": "610",
+            "_spdisplays_display-week": "0",
+            "_spdisplays_display-year": "0",
+            "_spdisplays_displayID": "1",
+            "_spdisplays_pixels": "3456 x 2234",
+            "_spdisplays_resolution": "1728 x 1117 @ 120.00Hz",
+            "spdisplays_ambient_brightness": "spdisplays_yes",
+            "spdisplays_connection_type": "spdisplays_internal",
+            "spdisplays_display_type": "spdisplays_built-in-liquid-retina-xdr",
+            "spdisplays_main": "spdisplays_yes",
+            "spdisplays_mirror": "spdisplays_off",
+            "spdisplays_online": "spdisplays_yes",
+            "spdisplays_pixelresolution": "spdisplays_3456x2234Retina"
+          }
+        ],
+        "spdisplays_vendor": "sppci_vendor_Apple",
+        "sppci_bus": "spdisplays_builtin",
+        "sppci_cores": "32",
+        "sppci_device_type": "spdisplays_gpu",
+        "sppci_model": "Apple M1 Max"
+      }
+    ]
+  },
+  "git": {
+    "commit": "a71f8a4556aae0e5543f0aea9c7aebb0b0afcd0e",
+    "dirty": false
+  },
+  "hardware": {
+    "SPHardwareDataType": [
+      {
+        "_name": "hardware_overview",
+        "boot_rom_version": "20457.40.144",
+        "chip_type": "Apple M1 Max",
+        "machine_model": "MacBookPro18,2",
+        "number_processors": "proc 10:0:8:2",
+        "os_loader_version": "20457.40.144",
+        "physical_memory": "64 GB"
+      }
+    ]
+  },
+  "host": {
+    "machine": "arm64",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "processor": "arm"
+  },
+  "macos": {
+    "clang": {
+      "argv": [
+        "clang",
+        "--version"
+      ],
+      "available": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin"
+    },
+    "metal": {
+      "argv": [
+        "xcrun",
+        "metal",
+        "-v"
+      ],
+      "available": true,
+      "returncode": 0,
+      "stderr": "Apple metal version 32023.883 (metalfe-32023.883)\nTarget: air64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /private/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.6TygYN/Metal.xctoolchain/usr/metal/current/bin",
+      "stdout": ""
+    },
+    "sdk": {
+      "argv": [
+        "xcrun",
+        "--sdk",
+        "macosx",
+        "--show-sdk-version"
+      ],
+      "available": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "26.5"
+    },
+    "sdk_build": {
+      "argv": [
+        "xcrun",
+        "--sdk",
+        "macosx",
+        "--show-sdk-build-version"
+      ],
+      "available": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "25F70"
+    },
+    "sw_vers": {
+      "argv": [
+        "sw_vers"
+      ],
+      "available": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "ProductName:\t\tmacOS\nProductVersion:\t\t27.2\nBuildVersion:\t\t26B5086k"
+    },
+    "xcode": {
+      "argv": [
+        "xcodebuild",
+        "-version"
+      ],
+      "available": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "Xcode 26.6\nBuild version 17F113"
+    }
+  },
+  "memory": {
+    "command": {
+      "argv": [
+        "memory_pressure"
+      ],
+      "available": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "The system has 68719476736 (4194304 pages with a page size of 16384).\n\nStats: \nPages free: 314800 \nPages purgeable: 11977 \nPages purged: 24837007 \n\nSwap I/O:\nSwapins: 9765667 \nSwapouts: 13219695 \n\nPage Q counts:\nPages active: 660457 \nPages inactive: 648493 \nPages speculative: 12786 \nPages throttled: 0 \nPages wired down: 288529 \n\nCompressor Stats:\nPages used by compressor: 2212816 \nPages decompressed: 187211863 \nPages compressed: 212580931 \n\nFile I/O:\nPageins: 150159253 \nPageouts: 132957 \n\nSystem-wide memory free percentage: 39%"
+    },
+    "free_percent": 39,
+    "swap": {
+      "argv": [
+        "sysctl",
+        "-n",
+        "vm.swapusage"
+      ],
+      "available": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "total = 11264.00M  used = 10271.00M  free = 993.00M  (encrypted)"
+    },
+    "vm_stat": {
+      "argv": [
+        "vm_stat"
+      ],
+      "available": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "Mach Virtual Memory Statistics: (page size of 16384 bytes)\nPages free:                                   314732.\nPages active:                                 660525.\nPages inactive:                               648493.\nPages speculative:                             12786.\nPages throttled:                                   0.\nPages wired down:                             288529.\nPages purgeable:                               11977.\n\"Translation faults\":                     5469561916.\nPages copy-on-write:                       412608598.\nPages zero filled:                        4877379264.\nPages reactivated:                          80817789.\nPages purged:                               24837007.\nFile-backed pages:                            397575.\nAnonymous pages:                              924229.\nPages stored in compressor:                  2329499.\nPages occupied by compressor:                2212816.\nDecompressions:                            187211863.\nCompressions:                              212580931.\nPageins:                                   150159254.\nPageouts:                                     132957.\nSwapins:                                     9765667.\nSwapouts:                                   13219695."
+    }
+  },
+  "power": {
+    "battery": {
+      "argv": [
+        "pmset",
+        "-g",
+        "battery"
+      ],
+      "available": false,
+      "returncode": 1,
+      "stderr": "",
+      "stdout": "Error: unhandled argument battery\nUsage: pmset <options>\nSee pmset(1) for details: 'man pmset'"
+    },
+    "state": {
+      "argv": [
+        "pmset",
+        "-g",
+        "ps"
+      ],
+      "available": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=37879907)\t100%; charged; 0:00 remaining present: true"
+    },
+    "thermal": {
+      "argv": [
+        "pmset",
+        "-g",
+        "therm"
+      ],
+      "available": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded"
+    }
+  },
+  "process": {
+    "selected_environment": {
+      "MKL_NUM_THREADS": null,
+      "MTL_DEBUG_LAYER": null,
+      "MTL_SHADER_VALIDATION": null,
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null
+    },
+    "sysctl": {
+      "hw.logicalcpu": "10",
+      "hw.memsize": "68719476736",
+      "hw.model": "MacBookPro18,2",
+      "hw.ncpu": "10",
+      "hw.optional.armv8_1_atomics": "1",
+      "hw.perflevel0.logicalcpu": "8",
+      "hw.perflevel1.logicalcpu": "2",
+      "hw.perflevel2.logicalcpu": "",
+      "hw.physicalcpu": "10"
+    },
+    "ulimit": {
+      "argv": [
+        "sh",
+        "-c",
+        "ulimit -a"
+      ],
+      "available": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "core file size          (blocks, -c) 0\ndata seg size           (kbytes, -d) unlimited\nfile size               (blocks, -f) unlimited\nmax locked memory       (kbytes, -l) unlimited\nmax memory size         (kbytes, -m) unlimited\nopen files                      (-n) 1048576\npipe size            (512 bytes, -p) 1\nstack size              (kbytes, -s) 8176\ncpu time               (seconds, -t) unlimited\nmax user processes              (-u) 10666\nvirtual memory          (kbytes, -v) unlimited"
+    }
+  },
+  "python": {
+    "executable_name": "python3.14",
+    "packages": {
+      "huggingface-hub": null,
+      "mlx": null,
+      "mlx-lm": null,
+      "psutil": "7.2.2",
+      "safetensors": null,
+      "tokenizers": null,
+      "transformers": null
+    },
+    "version": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 21.0.0 (clang-2100.1.1.101)]"
+  },
+  "schema_version": 1
+}

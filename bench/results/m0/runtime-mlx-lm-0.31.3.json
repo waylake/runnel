@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "name": "stock mlx-lm uv tool",
+  "packages": {
+    "mlx-lm": "0.31.3",
+    "mlx": "0.32.2",
+    "transformers": "5.15.1",
+    "safetensors": "0.8.0",
+    "tokenizers": "0.22.2",
+    "huggingface-hub": "1.28.0"
+  },
+  "python": "3.12.12",
+  "native_libraries": {
+    "libmlx.dylib": "d24c7a9b9d55a76bfd3bbcd1d042251a185cbadcb6340c3244a6ffa3dcb7c7e8",
+    "libjaccl.dylib": "9cfd72679ff35c593a1d46fd30d995cc4a131eed15733617efb1118001e74084"
+  }
+}

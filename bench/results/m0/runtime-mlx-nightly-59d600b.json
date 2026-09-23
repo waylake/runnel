@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "name": "MLX source build",
+  "source_commit": "59d600b5e64c238427d0f8d897ab7c682ef4d3d2",
+  "packages": {
+    "mlx": "0.32.3.dev20260924+59d600b",
+    "mlx-lm": "0.31.3",
+    "transformers": "5.17.0",
+    "numpy": "2.5.3",
+    "tokenizers": "0.23.2",
+    "safetensors": "0.8.0"
+  },
+  "python": "3.12.12",
+  "native_artifacts": {
+    "core.cpython-312-darwin.so": "41602e54998a4c3f15963ff50d1ca97f8dadee09a48f5bb1740f6a968a35ce64",
+    "source libmlx.dylib": "0f4ceba15cbe288616ad335d157f3930f0d819750b2be682ab9bf17cc49a834d",
+    "source mlx.metallib": "6225499567ba516562861e9810bfb658acd4ea5f46f2e919567e0547e6896633"
+  },
+  "experiment": "mx.fast.gated_delta_update M1 SIMD-group chunk-8 path"
+}

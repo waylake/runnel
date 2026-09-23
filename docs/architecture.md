@@ -14,7 +14,13 @@ Python 3.11+ owns experiment configuration, checkpoint auditing, workload genera
 
 Stock `mlx-lm` remains the untouched semantic reference for the exact 8-bit checkpoint. Its generated token IDs, per-position logits where feasible, MoE routes, KV state, and GDN state are used for differential testing.
 
-### Candidate optimized plane
+### Current exact experimental plane
+
+`src/runnel/mlx.py` owns the first product optimization rather than leaving it inside benchmark code. It concatenates the equally quantized routed up/gate output rows, executes one `gather_qmm`, restores the original activation/down path, and proves greedy parity against the pinned reference. `src/runnel/cli.py` provides streaming batch-1 generation.
+
+This path is still MLX-based and is not presented as the final native runtime. It exists to test one model-specific graph change quickly and to provide a usable exact CLI while native kernel experiments continue.
+
+### Candidate native plane
 
 A native C++/Objective-C++ runtime with direct Metal kernels is the leading candidate because it offers the shortest control path to Metal command buffers, explicit resource residency, counters, and profiling. Python remains outside the hot loop. MLX may supply reference kernels or tensor-loading utilities, but Runnel will not depend on Python for optimized decode.
 

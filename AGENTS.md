@@ -41,7 +41,7 @@ For every significant experiment:
 Run before commit:
 
 ```bash
-python -m unittest discover -s tests -v
+PYTHONPATH=src:bench python -m unittest discover -s tests -v
 python -m compileall -q bench src tests
 ```
 

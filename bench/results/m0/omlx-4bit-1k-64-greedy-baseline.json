@@ -1,0 +1,251 @@
+{
+  "correctness": {
+    "comparison": "output SHA-256 differs under identical greedy request",
+    "reference": "mlx-lm current 4-bit 1k",
+    "status": "mismatched"
+  },
+  "created_at_utc": "2026-09-23T16:49:08.989907+00:00",
+  "engine": {
+    "adapter": "openai-compatible-stream-v1",
+    "endpoint": "http://127.0.0.1:8000/v1/completions",
+    "model": "Ornith-1.5-35B-A3B-MLX-4bit",
+    "name": "oMLX",
+    "runtime_manifest": "runtime-omlx-0.7.0.dev4.json",
+    "runtime_version": "0.7.0.dev4+app2761"
+  },
+  "protocol": {
+    "batch_size": 1,
+    "cache_state": "runtime-default; experimental accelerations disabled",
+    "enable_thinking": false,
+    "max_output_tokens": 64,
+    "prompt_sha256": "a857a29e806c29c17af93d3b7bea2601349e1e02680297a288c6e44e7f8ddab2",
+    "prompt_tokens": 1024,
+    "sampling": {
+      "seed": 0,
+      "temperature": 0.0,
+      "top_k": 0,
+      "top_p": 1.0
+    },
+    "semantic_mode": "baseline",
+    "trials_requested": 3,
+    "warmups": 1,
+    "workload": {
+      "description": "Four-file Python repository, analysis-to-patch agent loop",
+      "file_names": [
+        "src/cache.py",
+        "src/repository.py",
+        "src/service.py",
+        "tests/test_cache.py"
+      ],
+      "name": "python-multi-file-v1",
+      "schema_version": 1,
+      "sha256": "3b0025b132647462ee07755377ba1882f9d0bac978d8dc2af67ed761215b5879",
+      "source_bytes": 2714,
+      "turn_count": 3
+    }
+  },
+  "provenance": {
+    "checkpoint_manifest_sha256": "7860835dd74e4ad17a4009421b2c9f5b513450f2f07882763928733a63ae567b",
+    "checkpoint_revision": "19504d912fa8fc7622bf6b1de3db5d5d890b1f02",
+    "environment_capture_sha256": "c3e0047e47e8ae7046818c04632eb8dd1cfd2e80ff85f682fb4a7a03ddb44a9a",
+    "repository_commit": "6b0768860fbc7079a207662a847b8ab4be7cc0b2",
+    "repository_dirty": false
+  },
+  "schema_version": 1,
+  "summary": {
+    "end_to_end_s": {
+      "mad": 0.002654,
+      "max": 2.509469,
+      "median": 2.506815,
+      "min": 2.486257,
+      "n": 3
+    },
+    "observed_decode_tokens_per_second": {
+      "mad": 0.293016,
+      "max": 75.9264,
+      "median": 75.180399,
+      "min": 74.887383,
+      "n": 3
+    },
+    "server_generation_tokens_per_second": {
+      "mad": 0.33,
+      "max": 76.72,
+      "median": 76.03,
+      "min": 75.7,
+      "n": 3
+    },
+    "server_prompt_tokens_per_second": {
+      "mad": 0.4,
+      "max": 621.65,
+      "median": 617.25,
+      "min": 616.85,
+      "n": 3
+    },
+    "successful_trials": 3,
+    "ttft_s": {
+      "mad": 0.000755,
+      "max": 1.668569,
+      "median": 1.667814,
+      "min": 1.656146,
+      "n": 3
+    },
+    "ttft_s_by_cache_state": {
+      "prefix_reused": {
+        "mad": null,
+        "max": null,
+        "median": null,
+        "min": null,
+        "n": 0
+      },
+      "uncached": {
+        "mad": 0.000755,
+        "max": 1.668569,
+        "median": 1.667814,
+        "min": 1.656146,
+        "n": 3
+      }
+    }
+  },
+  "trials": [
+    {
+      "cached_prompt_tokens": 0,
+      "completion_tokens": 64,
+      "end_to_end_output_tokens_per_second": 23.262125,
+      "end_to_end_s": 2.751253,
+      "first_event_s": 0.029119,
+      "index": 0,
+      "last_token_s": 2.748308,
+      "observed_decode_tokens_per_second": 76.201128,
+      "output_bytes": 265,
+      "output_sha256": "41b18bdf5e13a1e4680193a7dff14948f5ede84356d072cb7fc3d45b4042e0a4",
+      "phase": "warmup",
+      "prompt_tokens": 1024,
+      "started_at_utc": "2026-09-23T16:48:58.734311+00:00",
+      "status": "ok",
+      "stream_event_count": 10,
+      "ttft_s": 1.921548,
+      "uncached_prompt_tokens": 1024,
+      "usage": {
+        "completion_tokens": 64,
+        "generation_duration": 0.83,
+        "generation_tokens_per_second": 76.98,
+        "input_tokens": 1024,
+        "output_tokens": 64,
+        "prompt_eval_duration": 1.89,
+        "prompt_tokens": 1024,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_tokens_per_second": 542.39,
+        "time_to_first_token": 1.89,
+        "total_time": 2.72,
+        "total_tokens": 1088
+      }
+    },
+    {
+      "cached_prompt_tokens": 0,
+      "completion_tokens": 64,
+      "end_to_end_output_tokens_per_second": 25.503405,
+      "end_to_end_s": 2.509469,
+      "first_event_s": 0.004826,
+      "index": 0,
+      "last_token_s": 2.509077,
+      "observed_decode_tokens_per_second": 74.887383,
+      "output_bytes": 265,
+      "output_sha256": "41b18bdf5e13a1e4680193a7dff14948f5ede84356d072cb7fc3d45b4042e0a4",
+      "phase": "trial",
+      "prompt_tokens": 1024,
+      "started_at_utc": "2026-09-23T16:49:01.486279+00:00",
+      "status": "ok",
+      "stream_event_count": 10,
+      "ttft_s": 1.667814,
+      "uncached_prompt_tokens": 1024,
+      "usage": {
+        "completion_tokens": 64,
+        "generation_duration": 0.85,
+        "generation_tokens_per_second": 75.7,
+        "input_tokens": 1024,
+        "output_tokens": 64,
+        "prompt_eval_duration": 1.66,
+        "prompt_tokens": 1024,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_tokens_per_second": 617.25,
+        "time_to_first_token": 1.66,
+        "total_time": 2.5,
+        "total_tokens": 1088
+      }
+    },
+    {
+      "cached_prompt_tokens": 0,
+      "completion_tokens": 64,
+      "end_to_end_output_tokens_per_second": 25.741508,
+      "end_to_end_s": 2.486257,
+      "first_event_s": 0.004554,
+      "index": 1,
+      "last_token_s": 2.485897,
+      "observed_decode_tokens_per_second": 75.9264,
+      "output_bytes": 265,
+      "output_sha256": "41b18bdf5e13a1e4680193a7dff14948f5ede84356d072cb7fc3d45b4042e0a4",
+      "phase": "trial",
+      "prompt_tokens": 1024,
+      "started_at_utc": "2026-09-23T16:49:03.996191+00:00",
+      "status": "ok",
+      "stream_event_count": 10,
+      "ttft_s": 1.656146,
+      "uncached_prompt_tokens": 1024,
+      "usage": {
+        "completion_tokens": 64,
+        "generation_duration": 0.83,
+        "generation_tokens_per_second": 76.72,
+        "input_tokens": 1024,
+        "output_tokens": 64,
+        "prompt_eval_duration": 1.65,
+        "prompt_tokens": 1024,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_tokens_per_second": 621.65,
+        "time_to_first_token": 1.65,
+        "total_time": 2.48,
+        "total_tokens": 1088
+      }
+    },
+    {
+      "cached_prompt_tokens": 0,
+      "completion_tokens": 64,
+      "end_to_end_output_tokens_per_second": 25.530403,
+      "end_to_end_s": 2.506815,
+      "first_event_s": 0.005009,
+      "index": 2,
+      "last_token_s": 2.506553,
+      "observed_decode_tokens_per_second": 75.180399,
+      "output_bytes": 265,
+      "output_sha256": "41b18bdf5e13a1e4680193a7dff14948f5ede84356d072cb7fc3d45b4042e0a4",
+      "phase": "trial",
+      "prompt_tokens": 1024,
+      "started_at_utc": "2026-09-23T16:49:06.482858+00:00",
+      "status": "ok",
+      "stream_event_count": 10,
+      "ttft_s": 1.668569,
+      "uncached_prompt_tokens": 1024,
+      "usage": {
+        "completion_tokens": 64,
+        "generation_duration": 0.84,
+        "generation_tokens_per_second": 76.03,
+        "input_tokens": 1024,
+        "output_tokens": 64,
+        "prompt_eval_duration": 1.66,
+        "prompt_tokens": 1024,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_tokens_per_second": 616.85,
+        "time_to_first_token": 1.66,
+        "total_time": 2.5,
+        "total_tokens": 1088
+      }
+    }
+  ]
+}
