@@ -31,12 +31,15 @@ def summarize(values: list[float]) -> dict[str, float | int | None]:
     }
 
 
-def _fuse_routed_gate_up(model) -> int:
-    """Replace separate routed gate/up gathers with one packed gather-qmm."""
+def _fuse_moe_projections(
+    model, *, fuse_routed_gate_up: bool, fuse_shared_gate_up: bool
+) -> tuple[int, int]:
+    """Replace separate MoE gate/up projections with packed projections."""
     import gc
 
     import mlx.core as mx
     import mlx.nn as nn
+    from mlx_lm.models.activations import swiglu
     from mlx_lm.models.switch_layers import _gather_sort, _scatter_unsort
 
     class FusedQuantizedSwitchGLU(nn.Module):
@@ -100,18 +103,77 @@ def _fuse_routed_gate_up(model) -> int:
                 out = _scatter_unsort(out, inv_order, indices.shape)
             return out.squeeze(-2)
 
-    count = 0
+    class FusedQuantizedSharedMLP(nn.Module):
+        def __init__(self, old):
+            super().__init__()
+            gate = old.gate_proj
+            up = old.up_proj
+            if not (
+                isinstance(gate, type(up))
+                and gate.bits == up.bits
+                and gate.group_size == up.group_size
+                and gate.mode == up.mode
+            ):
+                raise ValueError("shared gate/up quantization formats differ")
+            if ("bias" in gate) or ("bias" in up):
+                raise ValueError("shared module biases are not expected")
+
+            self.weight = mx.concatenate([up["weight"], gate["weight"]], axis=0)
+            self.scales = mx.concatenate([up["scales"], gate["scales"]], axis=0)
+            up_biases = up.get("biases")
+            gate_biases = gate.get("biases")
+            if (up_biases is None) != (gate_biases is None):
+                raise ValueError("shared gate/up affine-bias formats differ")
+            self.biases = (
+                None
+                if up_biases is None
+                else mx.concatenate([up_biases, gate_biases], axis=0)
+            )
+            self.group_size = gate.group_size
+            self.bits = gate.bits
+            self.mode = gate.mode
+            self.down_proj = old.down_proj
+            self.freeze()
+            mx.eval(self.parameters())
+
+        def __call__(self, x):
+            fused = mx.quantized_matmul(
+                x,
+                self["weight"],
+                scales=self["scales"],
+                biases=self.get("biases"),
+                transpose=True,
+                group_size=self.group_size,
+                bits=self.bits,
+                mode=self.mode,
+            )
+            x_up, x_gate = mx.split(fused, 2, axis=-1)
+            return self.down_proj(swiglu(x_gate, x_up))
+
+    routed_count = 0
+    shared_count = 0
     for layer in model.language_model.layers:
-        old = layer.mlp.switch_mlp
-        if not hasattr(old.gate_proj, "bits"):
-            continue
-        fused = FusedQuantizedSwitchGLU(old)
-        layer.mlp.switch_mlp = fused
-        count += 1
-        del old, fused
-        gc.collect()
-        mx.clear_cache()
-    return count
+        if fuse_routed_gate_up:
+            old = layer.mlp.switch_mlp
+            if not hasattr(old.gate_proj, "bits"):
+                raise ValueError("routed gate/up are not quantized as expected")
+            fused = FusedQuantizedSwitchGLU(old)
+            layer.mlp.switch_mlp = fused
+            routed_count += 1
+            del old, fused
+            gc.collect()
+            mx.clear_cache()
+        if fuse_shared_gate_up:
+            old = layer.mlp.shared_expert
+            if not hasattr(old.gate_proj, "bits"):
+                raise ValueError("shared gate/up are not quantized as expected")
+            fused = FusedQuantizedSharedMLP(old)
+            layer.mlp.shared_expert = fused
+            shared_count += 1
+            del old, fused
+            gc.collect()
+            mx.clear_cache()
+    return routed_count, shared_count
 
 
 def main() -> int:
@@ -126,6 +188,7 @@ def main() -> int:
     parser.add_argument("--trials", type=int, default=3)
     parser.add_argument("--reference-result", type=Path)
     parser.add_argument("--fuse-routed-gate-up", action="store_true")
+    parser.add_argument("--fuse-shared-gate-up", action="store_true")
     parser.add_argument("--kv-bits", type=int, choices=(None, 8, 6, 5, 4, 3, 2))
     parser.add_argument("--kv-group-size", type=int, default=64)
     parser.add_argument("--quantized-kv-start", type=int, default=0)
@@ -155,10 +218,15 @@ def main() -> int:
     if prompt_ids != expected_ids:
         raise SystemExit("mlx tokenizer did not reproduce the prompt token IDs")
 
-    fused_layers = 0
+    fused_routed_layers = 0
+    fused_shared_layers = 0
     fusion_started = time.perf_counter()
-    if args.fuse_routed_gate_up:
-        fused_layers = _fuse_routed_gate_up(model)
+    if args.fuse_routed_gate_up or args.fuse_shared_gate_up:
+        fused_routed_layers, fused_shared_layers = _fuse_moe_projections(
+            model,
+            fuse_routed_gate_up=args.fuse_routed_gate_up,
+            fuse_shared_gate_up=args.fuse_shared_gate_up,
+        )
         mx.synchronize()
     fusion_seconds = time.perf_counter() - fusion_started
 
@@ -265,11 +333,20 @@ def main() -> int:
             if measured and not matched
             else None,
         }
-    elif args.fuse_routed_gate_up:
+    elif args.fuse_routed_gate_up or args.fuse_shared_gate_up:
         correctness = {
             "status": "not-compared",
             "reference": "pass --reference-result for greedy token parity",
         }
+
+    engine_variants = []
+    if args.fuse_routed_gate_up:
+        engine_variants.append("fused-routed-gate-up")
+    if args.fuse_shared_gate_up:
+        engine_variants.append("fused-shared-gate-up")
+    engine_name = "mlx-lm"
+    if engine_variants:
+        engine_name += "+" + "+".join(engine_variants)
 
     result = {
         "schema_version": 1,
@@ -283,9 +360,7 @@ def main() -> int:
         },
         "correctness": correctness,
         "engine": {
-            "name": "mlx-lm+fused-routed-gate-up"
-            if args.fuse_routed_gate_up
-            else "mlx-lm",
+            "name": engine_name,
             "runtime_version": importlib.metadata.version("mlx-lm"),
             "mlx_version": importlib.metadata.version("mlx"),
             "adapter": "direct-stream-v1",
@@ -294,7 +369,8 @@ def main() -> int:
         "model_load": {
             "seconds": round(load_seconds, 6),
             "fusion_setup_seconds": round(fusion_seconds, 6),
-            "fused_routed_gate_up_layers": fused_layers,
+            "fused_routed_gate_up_layers": fused_routed_layers,
+            "fused_shared_gate_up_layers": fused_shared_layers,
             "checkpoint": prompt_artifact["workload"],
         },
         "protocol": {
@@ -311,7 +387,9 @@ def main() -> int:
             "cache_state": "new prompt cache per generation",
             "experiment": {
                 "fused_routed_gate_up": args.fuse_routed_gate_up,
-                "fused_layers": fused_layers,
+                "fused_routed_layers": fused_routed_layers,
+                "fused_shared_gate_up": args.fuse_shared_gate_up,
+                "fused_shared_layers": fused_shared_layers,
             },
             "kv": {
                 "bits": args.kv_bits,
