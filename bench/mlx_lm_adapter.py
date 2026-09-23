@@ -176,6 +176,24 @@ def _fuse_moe_projections(
     return routed_count, shared_count
 
 
+def _use_last_token_lm_head(model) -> int:
+    """Project only the final prefill position through the LM head."""
+    import mlx.nn as nn
+
+    class LastTokenLMHead(nn.Module):
+        def __init__(self, head):
+            super().__init__()
+            self.head = head
+            self.freeze()
+
+        def __call__(self, x):
+            return self.head(x[:, -1:, :])
+
+    text_model = model.language_model
+    text_model.lm_head = LastTokenLMHead(text_model.lm_head)
+    return 1
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", type=Path, required=True)
@@ -189,6 +207,7 @@ def main() -> int:
     parser.add_argument("--reference-result", type=Path)
     parser.add_argument("--fuse-routed-gate-up", action="store_true")
     parser.add_argument("--fuse-shared-gate-up", action="store_true")
+    parser.add_argument("--last-token-lm-head", action="store_true")
     parser.add_argument("--kv-bits", type=int, choices=(None, 8, 6, 5, 4, 3, 2))
     parser.add_argument("--kv-group-size", type=int, default=64)
     parser.add_argument("--quantized-kv-start", type=int, default=0)
@@ -227,6 +246,10 @@ def main() -> int:
             fuse_routed_gate_up=args.fuse_routed_gate_up,
             fuse_shared_gate_up=args.fuse_shared_gate_up,
         )
+    last_token_lm_head_count = 0
+    if args.last_token_lm_head:
+        last_token_lm_head_count = _use_last_token_lm_head(model)
+    if args.fuse_routed_gate_up or args.fuse_shared_gate_up or args.last_token_lm_head:
         mx.synchronize()
     fusion_seconds = time.perf_counter() - fusion_started
 
@@ -333,7 +356,11 @@ def main() -> int:
             if measured and not matched
             else None,
         }
-    elif args.fuse_routed_gate_up or args.fuse_shared_gate_up:
+    elif (
+        args.fuse_routed_gate_up
+        or args.fuse_shared_gate_up
+        or args.last_token_lm_head
+    ):
         correctness = {
             "status": "not-compared",
             "reference": "pass --reference-result for greedy token parity",
@@ -344,6 +371,8 @@ def main() -> int:
         engine_variants.append("fused-routed-gate-up")
     if args.fuse_shared_gate_up:
         engine_variants.append("fused-shared-gate-up")
+    if args.last_token_lm_head:
+        engine_variants.append("last-token-lm-head")
     engine_name = "mlx-lm"
     if engine_variants:
         engine_name += "+" + "+".join(engine_variants)
@@ -371,6 +400,7 @@ def main() -> int:
             "fusion_setup_seconds": round(fusion_seconds, 6),
             "fused_routed_gate_up_layers": fused_routed_layers,
             "fused_shared_gate_up_layers": fused_shared_layers,
+            "last_token_lm_head_count": last_token_lm_head_count,
             "checkpoint": prompt_artifact["workload"],
         },
         "protocol": {
@@ -390,6 +420,8 @@ def main() -> int:
                 "fused_routed_layers": fused_routed_layers,
                 "fused_shared_gate_up": args.fuse_shared_gate_up,
                 "fused_shared_layers": fused_shared_layers,
+                "last_token_lm_head": args.last_token_lm_head,
+                "last_token_lm_head_count": last_token_lm_head_count,
             },
             "kv": {
                 "bits": args.kv_bits,
