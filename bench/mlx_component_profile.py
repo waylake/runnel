@@ -64,6 +64,7 @@ def measure(
             }
         )
         del output
+        output = None
         gc.collect()
         mx.clear_cache()
     return records, output
