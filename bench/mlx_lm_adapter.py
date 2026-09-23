@@ -2,7 +2,8 @@
 """Run the stock mlx-lm reference against a fixed-token prompt artifact.
 
 Execute with the Python environment that contains mlx-lm, not the system
-Python. The script intentionally imports no Runnel package.
+Python. The production routed projection transform is imported from Runnel;
+failed research-only variants remain local to this adapter.
 """
 
 from __future__ import annotations
@@ -36,72 +37,14 @@ def _fuse_moe_projections(
 ) -> tuple[int, int]:
     """Replace separate MoE gate/up projections with packed projections."""
     import gc
+    import sys
 
     import mlx.core as mx
     import mlx.nn as nn
     from mlx_lm.models.activations import swiglu
-    from mlx_lm.models.switch_layers import _gather_sort, _scatter_unsort
 
-    class FusedQuantizedSwitchGLU(nn.Module):
-        def __init__(self, old):
-            super().__init__()
-            gate = old.gate_proj
-            up = old.up_proj
-            if not (
-                isinstance(gate, type(up))
-                and gate.bits == up.bits
-                and gate.group_size == up.group_size
-                and gate.mode == up.mode
-            ):
-                raise ValueError("gate/up quantization formats differ")
-            if ("bias" in gate) or ("bias" in up):
-                raise ValueError("module biases are not expected for this checkpoint")
-
-            self.weight = mx.concatenate([up["weight"], gate["weight"]], axis=1)
-            self.scales = mx.concatenate([up["scales"], gate["scales"]], axis=1)
-            up_biases = up.get("biases")
-            gate_biases = gate.get("biases")
-            if (up_biases is None) != (gate_biases is None):
-                raise ValueError("gate/up affine-bias formats differ")
-            self.biases = (
-                None
-                if up_biases is None
-                else mx.concatenate([up_biases, gate_biases], axis=1)
-            )
-            self.group_size = gate.group_size
-            self.bits = gate.bits
-            self.mode = gate.mode
-            self.down_proj = old.down_proj
-            self.activation = old.activation
-            self.freeze()
-            mx.eval(self.parameters())
-
-        def __call__(self, x, indices):
-            x = mx.expand_dims(x, (-2, -3))
-            do_sort = indices.size >= 64
-            idx = indices
-            inv_order = None
-            if do_sort:
-                x, idx, inv_order = _gather_sort(x, indices)
-            fused = mx.gather_qmm(
-                x,
-                self["weight"],
-                self["scales"],
-                self.get("biases"),
-                rhs_indices=idx,
-                transpose=True,
-                group_size=self.group_size,
-                bits=self.bits,
-                mode=self.mode,
-                sorted_indices=do_sort,
-            )
-            x_up, x_gate = mx.split(fused, 2, axis=-1)
-            out = self.down_proj(
-                self.activation(x_up, x_gate), idx, sorted_indices=do_sort
-            )
-            if do_sort:
-                out = _scatter_unsort(out, inv_order, indices.shape)
-            return out.squeeze(-2)
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+    from runnel.mlx import fuse_routed_gate_up
 
     class FusedQuantizedSharedMLP(nn.Module):
         def __init__(self, old):
@@ -150,20 +93,10 @@ def _fuse_moe_projections(
             x_up, x_gate = mx.split(fused, 2, axis=-1)
             return self.down_proj(swiglu(x_gate, x_up))
 
-    routed_count = 0
+    routed_count = fuse_routed_gate_up(model) if fuse_routed_gate_up else 0
     shared_count = 0
-    for layer in model.language_model.layers:
-        if fuse_routed_gate_up:
-            old = layer.mlp.switch_mlp
-            if not hasattr(old.gate_proj, "bits"):
-                raise ValueError("routed gate/up are not quantized as expected")
-            fused = FusedQuantizedSwitchGLU(old)
-            layer.mlp.switch_mlp = fused
-            routed_count += 1
-            del old, fused
-            gc.collect()
-            mx.clear_cache()
-        if fuse_shared_gate_up:
+    if fuse_shared_gate_up:
+        for layer in model.language_model.layers:
             old = layer.mlp.shared_expert
             if not hasattr(old.gate_proj, "bits"):
                 raise ValueError("shared gate/up are not quantized as expected")

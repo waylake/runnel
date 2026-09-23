@@ -13,10 +13,14 @@ authors = [{ name = "Runnel contributors" }]
 dependencies = []
 
 [project.scripts]
+runnel = "runnel.cli:main"
 runnel-env = "runnel_bench.environment:main"
 runnel-fingerprint = "runnel_bench.checkpoint:main"
 runnel-bench = "runnel_bench.runner:main"
 
+[project.optional-dependencies]
+runtime = ["mlx==0.32.2", "mlx-lm>=0.32.0"]
+
 [tool.setuptools.packages.find]
-where = ["bench"]
-include = ["runnel_bench*"]
+where = ["bench", "src"]
+include = ["runnel_bench*", "runnel*"]
