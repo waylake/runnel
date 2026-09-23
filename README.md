@@ -2,7 +2,7 @@
 
 Runnel is a model-specific LLM inference runtime and reproducible performance laboratory for **Ornith-1.5-35B-A3B on Apple M1 Max 64 GB**.
 
-It is an active research runtime, not a claim of a completed 2× breakthrough. The current exact execution path includes a model-specific packed routed gate/up projection and a streaming CLI.
+It is an active research runtime, not a claim of a completed 2× breakthrough. The current exact execution path includes a model-specific packed routed gate/up projection and a streaming CLI. The first public artifact is the `v0.1.0-alpha.1` prerelease; there is no stable release yet.
 
 ## Target
 

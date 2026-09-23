@@ -2,9 +2,9 @@
 
 _Last updated: 2026-09-24_
 
-## Latest stable result
+## Latest verified result
 
-Runnel now has a working streaming MLX execution path and one exact model-specific optimization: packed routed gate/up projection.
+Runnel now has a working streaming MLX execution path and one exact model-specific optimization: packed routed gate/up projection. This is an alpha research result, not a stable release or the requested 2× breakthrough.
 
 On the 32-core M1 Max 64 GB, current `mlx-lm` project reference versus the Runnel transform, batch 1, greedy, 64 output tokens:
 
