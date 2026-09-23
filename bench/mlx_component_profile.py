@@ -54,6 +54,7 @@ def measure(
         mx.reset_peak_memory()
         started = time.perf_counter()
         output = fn()
+        mx.eval(output)
         mx.synchronize()
         elapsed = time.perf_counter() - started
         records.append(
