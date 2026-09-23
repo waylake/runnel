@@ -194,6 +194,64 @@ def _use_last_token_lm_head(model) -> int:
     return 1
 
 
+def _enable_core_chunked_gdn(min_tokens: int) -> int:
+    """Route long GDN prefill through MLX core's M1 SIMD-group chunk kernel."""
+    import mlx.core as mx
+    import mlx_lm.models.qwen3_5 as qwen
+    from mlx_lm.models.gated_delta import compute_g
+
+    if not hasattr(mx.fast, "gated_delta_update"):
+        raise RuntimeError(
+            "this MLX build has no mx.fast.gated_delta_update; use the pinned nightly"
+        )
+    original = qwen.gated_delta_update
+
+    def patched(
+        q,
+        k,
+        v,
+        a,
+        b,
+        A_log,
+        dt_bias,
+        state=None,
+        mask=None,
+        use_kernel=True,
+    ):
+        if q.shape[1] < min_tokens:
+            return original(
+                q,
+                k,
+                v,
+                a,
+                b,
+                A_log,
+                dt_bias,
+                state,
+                mask,
+                use_kernel,
+            )
+        beta = mx.sigmoid(b)
+        gamma = compute_g(A_log, a, dt_bias)
+        if state is None:
+            B, _, _, _ = q.shape
+            Hv, Dv = v.shape[-2:]
+            _, _, _, Dk = k.shape
+            state = mx.zeros((B, Hv, Dv, Dk), dtype=mx.float32)
+        return mx.fast.gated_delta_update(
+            q,
+            k,
+            v,
+            gamma,
+            beta,
+            initial_state=state,
+            mask=mask,
+        )
+
+    qwen.gated_delta_update = patched
+    return 1
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", type=Path, required=True)
@@ -205,9 +263,14 @@ def main() -> int:
     parser.add_argument("--warmups", type=int, default=1)
     parser.add_argument("--trials", type=int, default=3)
     parser.add_argument("--reference-result", type=Path)
+    parser.add_argument(
+        "--runtime-manifest", default="runtime-mlx-lm-0.31.3.json"
+    )
     parser.add_argument("--fuse-routed-gate-up", action="store_true")
     parser.add_argument("--fuse-shared-gate-up", action="store_true")
     parser.add_argument("--last-token-lm-head", action="store_true")
+    parser.add_argument("--gdn-core-chunked", action="store_true")
+    parser.add_argument("--gdn-core-min-tokens", type=int, default=16)
     parser.add_argument("--kv-bits", type=int, choices=(None, 8, 6, 5, 4, 3, 2))
     parser.add_argument("--kv-group-size", type=int, default=64)
     parser.add_argument("--quantized-kv-start", type=int, default=0)
@@ -249,7 +312,17 @@ def main() -> int:
     last_token_lm_head_count = 0
     if args.last_token_lm_head:
         last_token_lm_head_count = _use_last_token_lm_head(model)
-    if args.fuse_routed_gate_up or args.fuse_shared_gate_up or args.last_token_lm_head:
+    gdn_core_chunked_count = 0
+    if args.gdn_core_chunked:
+        gdn_core_chunked_count = _enable_core_chunked_gdn(
+            args.gdn_core_min_tokens
+        )
+    if (
+        args.fuse_routed_gate_up
+        or args.fuse_shared_gate_up
+        or args.last_token_lm_head
+        or args.gdn_core_chunked
+    ):
         mx.synchronize()
     fusion_seconds = time.perf_counter() - fusion_started
 
@@ -360,6 +433,7 @@ def main() -> int:
         args.fuse_routed_gate_up
         or args.fuse_shared_gate_up
         or args.last_token_lm_head
+        or args.gdn_core_chunked
     ):
         correctness = {
             "status": "not-compared",
@@ -373,6 +447,8 @@ def main() -> int:
         engine_variants.append("fused-shared-gate-up")
     if args.last_token_lm_head:
         engine_variants.append("last-token-lm-head")
+    if args.gdn_core_chunked:
+        engine_variants.append("gdn-core-chunked")
     engine_name = "mlx-lm"
     if engine_variants:
         engine_name += "+" + "+".join(engine_variants)
@@ -393,7 +469,7 @@ def main() -> int:
             "runtime_version": importlib.metadata.version("mlx-lm"),
             "mlx_version": importlib.metadata.version("mlx"),
             "adapter": "direct-stream-v1",
-            "runtime_manifest": "runtime-mlx-lm-0.31.3.json",
+            "runtime_manifest": args.runtime_manifest,
         },
         "model_load": {
             "seconds": round(load_seconds, 6),
@@ -401,6 +477,7 @@ def main() -> int:
             "fused_routed_gate_up_layers": fused_routed_layers,
             "fused_shared_gate_up_layers": fused_shared_layers,
             "last_token_lm_head_count": last_token_lm_head_count,
+            "gdn_core_chunked_count": gdn_core_chunked_count,
             "checkpoint": prompt_artifact["workload"],
         },
         "protocol": {
@@ -422,6 +499,9 @@ def main() -> int:
                 "fused_shared_layers": fused_shared_layers,
                 "last_token_lm_head": args.last_token_lm_head,
                 "last_token_lm_head_count": last_token_lm_head_count,
+                "gdn_core_chunked": args.gdn_core_chunked,
+                "gdn_core_min_tokens": args.gdn_core_min_tokens,
+                "gdn_core_chunked_count": gdn_core_chunked_count,
             },
             "kv": {
                 "bits": args.kv_bits,
