@@ -111,7 +111,10 @@ def _active_decode_estimate(
     nominal_bandwidth_gbps = 400.0
 
     def quantization_spec(name: str) -> tuple[int, int]:
-        override = quantization.get(name, {})
+        override = quantization.get(name)
+        if override is None and name.endswith(".weight"):
+            override = quantization.get(name[:-7])
+        override = override or {}
         return (
             int(override.get("bits", default_bits)),
             int(override.get("group_size", default_group_size) or 1),

@@ -144,6 +144,21 @@ class CheckpointTests(unittest.TestCase):
                 256,
             )
 
+            config = json.loads((root / "config.json").read_text(encoding="utf-8"))
+            config["quantization"]["bits"] = 4
+            for layer_index in range(4):
+                config["quantization"][
+                    f"language_model.model.layers.{layer_index}.mlp.gate"
+                ] = {"bits": 8, "group_size": 64}
+            (root / "config.json").write_text(json.dumps(config), encoding="utf-8")
+            override_result = inspect_checkpoint(root, hash_weights=False)
+            self.assertEqual(
+                override_result["active_decode_estimate"]["totals_by_component"][
+                    "router_parameters"
+                ],
+                512,
+            )
+
     def test_mtp_tensor_is_detected(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
