@@ -18,12 +18,14 @@ SCHEMA_VERSION = 1
 SENSITIVE_KEYS = {
     "activationlockstatus",
     "machinename",
+    "modelnumber",
     "platformuuid",
     "provisioningudid",
     "serial",
     "serialnumber",
     "udid",
 }
+SENSITIVE_KEY_SUBSTRINGS = ("serialnumber", "platformuuid", "provisioningudid")
 
 
 def _run(argv: list[str], timeout: float = 15.0) -> dict[str, Any]:
@@ -61,12 +63,16 @@ def _scrub(value: Any) -> Any:
         clean: dict[str, Any] = {}
         for key, item in value.items():
             normalized = re.sub(r"[^a-z0-9]", "", key.lower())
-            if normalized in SENSITIVE_KEYS:
+            if normalized in SENSITIVE_KEYS or any(
+                fragment in normalized for fragment in SENSITIVE_KEY_SUBSTRINGS
+            ):
                 continue
             clean[key] = _scrub(item)
         return clean
     if isinstance(value, list):
         return [_scrub(item) for item in value]
+    if isinstance(value, str):
+        return re.sub(r"\(id=\d+\)", "(id=<redacted>)", value)
     return value
 
 

@@ -74,86 +74,158 @@ def _shape_product(shape: Iterable[int]) -> int:
     return math.prod(shape)
 
 
-def _active_decode_estimate(config: dict[str, Any]) -> dict[str, Any]:
+def _summarize_quantization(config: dict[str, Any]) -> dict[str, Any]:
+    raw = config.get("quantization", {})
+    summary = {
+        key: raw[key] for key in ("mode", "bits", "group_size") if key in raw
+    }
+    overrides = [
+        {"tensor": name, **value}
+        for name, value in raw.items()
+        if isinstance(value, dict)
+    ]
+    unique = {
+        json.dumps(
+            {key: value for key, value in item.items() if key != "tensor"},
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        for item in overrides
+    }
+    summary["per_tensor_override_count"] = len(overrides)
+    summary["unique_override_configs"] = [json.loads(item) for item in sorted(unique)]
+    return summary
+
+
+def _active_decode_estimate(
+    config: dict[str, Any], tensor_headers: dict[str, dict[str, Any]]
+) -> dict[str, Any]:
     text = config.get("text_config", config)
-    hidden = int(text["hidden_size"])
-    vocab = int(text["vocab_size"])
-    layers = int(text["num_hidden_layers"])
+    num_layers = int(text["num_hidden_layers"])
+    num_experts = int(text["num_experts"])
     layer_types = list(text["layer_types"])
-    experts = int(text["num_experts"])
-    top_k = int(text["num_experts_per_tok"])
-    moe_intermediate = int(text["moe_intermediate_size"])
-    shared_intermediate = int(text.get("shared_expert_intermediate_size", 0))
-
-    linear_count = sum(kind == "linear_attention" for kind in layer_types)
-    full_count = sum(kind == "full_attention" for kind in layer_types)
-
-    key_heads = int(text["linear_num_key_heads"])
-    value_heads = int(text["linear_num_value_heads"])
-    key_dim = int(text["linear_key_head_dim"])
-    value_dim = int(text["linear_value_head_dim"])
-    # The checkpoint stores separate Q/K (key_heads each) and V (value_heads).
-    gdn_qkv = (2 * key_heads + value_heads) * key_dim * hidden
-    gdn_z = value_heads * value_dim * hidden
-    gdn_a = key_heads * key_dim * hidden
-    gdn_b = key_heads * key_dim * hidden
-    gdn_out = hidden * value_heads * value_dim
-    gdn_per_layer = gdn_qkv + gdn_z + gdn_a + gdn_b + gdn_out
-
-    attention_heads = int(text["num_attention_heads"])
-    kv_heads = int(text["num_key_value_heads"])
-    head_dim = int(text["head_dim"])
-    full_per_layer = hidden * head_dim * (attention_heads + 2 * kv_heads)
-    full_per_layer += attention_heads * head_dim * hidden
-
-    routed_per_layer = top_k * 3 * hidden * moe_intermediate
-    shared_per_layer = 3 * hidden * shared_intermediate
-    router_per_layer = hidden * experts + experts
-    moe_active_per_layer = routed_per_layer + shared_per_layer + router_per_layer
-
-    lm_head = hidden * vocab
-    active_parameters = (
-        linear_count * gdn_per_layer
-        + full_count * full_per_layer
-        + layers * moe_active_per_layer
-        + lm_head
-    )
-
     quantization = config.get("quantization", {})
     bits = int(quantization.get("bits", 16))
     group_size = int(quantization.get("group_size", 1) or 1)
-    if bits == 8:
-        # U32 stores four int8 values. Two BF16 affine values per group add
-        # four bytes per group. This is an estimate, not a replacement for a
-        # measured allocator/Metal working-set report.
-        quantized_bytes_per_parameter = 1.0 + 4.0 / group_size
-    else:
-        quantized_bytes_per_parameter = bits / 8.0
-
-    quantized_active_parameters = active_parameters - lm_head
-    estimated_weight_bytes = (
-        quantized_active_parameters * quantized_bytes_per_parameter + 2 * lm_head
-    )
+    values_per_u32 = 32 // bits
     nominal_bandwidth_gbps = 400.0
+
+    def logical_numel(name: str) -> int:
+        metadata = tensor_headers[name]
+        elements = _shape_product(metadata["shape"])
+        return elements * values_per_u32 if metadata["dtype"] == "U32" else elements
+
+    def active_bytes(name: str) -> int:
+        metadata = tensor_headers[name]
+        parameters = logical_numel(name)
+        if metadata["dtype"] == "U32":
+            # Packed values plus BF16 scale and bias for each affine group.
+            return round(parameters * (bits / 8.0 + 4.0 / group_size))
+        return parameters * 2
+
+    totals = {
+        "gated_delta_net_parameters": 0,
+        "full_attention_parameters": 0,
+        "active_routed_expert_parameters": 0,
+        "shared_expert_parameters": 0,
+        "router_parameters": 0,
+        "layer_norm_parameters": 0,
+    }
+    active_parameter_count = 0
+    active_weight_bytes = 0
+
+    for layer_index in range(num_layers):
+        prefix = f"language_model.model.layers.{layer_index}."
+        names = [name for name in tensor_headers if name.startswith(prefix)]
+        attention_names = []
+        for name in names:
+            if ".linear_attn." in name or ".self_attn." in name:
+                if name.endswith((".scales", ".biases")):
+                    continue
+                if name.endswith((".weight", ".A_log", ".dt_bias")):
+                    attention_names.append(name)
+            elif name.endswith((".input_layernorm.weight", ".post_attention_layernorm.weight")):
+                totals["layer_norm_parameters"] += logical_numel(name)
+                active_parameter_count += logical_numel(name)
+                active_weight_bytes += active_bytes(name)
+
+        attention_parameters = sum(logical_numel(name) for name in attention_names)
+        active_parameter_count += attention_parameters
+        active_weight_bytes += sum(active_bytes(name) for name in attention_names)
+        key = (
+            "gated_delta_net_parameters"
+            if layer_types[layer_index] == "linear_attention"
+            else "full_attention_parameters"
+        )
+        totals[key] += attention_parameters
+
+        routed_names = [
+            name
+            for name in names
+            if ".switch_mlp." in name and name.endswith(".weight")
+        ]
+        routed_parameters = sum(logical_numel(name) // num_experts for name in routed_names)
+        totals["active_routed_expert_parameters"] += routed_parameters
+        active_parameter_count += routed_parameters
+        active_weight_bytes += round(
+            sum(active_bytes(name) for name in routed_names) / num_experts
+        )
+
+        shared_names = [
+            name
+            for name in names
+            if ".shared_expert." in name and name.endswith(".weight")
+        ]
+        shared_parameters = sum(logical_numel(name) for name in shared_names)
+        totals["shared_expert_parameters"] += shared_parameters
+        active_parameter_count += shared_parameters
+        active_weight_bytes += sum(active_bytes(name) for name in shared_names)
+
+        router_names = [
+            name
+            for name in names
+            if name.endswith((".mlp.gate.weight", ".mlp.shared_expert_gate.weight"))
+        ]
+        router_parameters = sum(logical_numel(name) for name in router_names)
+        totals["router_parameters"] += router_parameters
+        active_parameter_count += router_parameters
+        active_weight_bytes += sum(active_bytes(name) for name in router_names)
+
+    lm_head_name = "language_model.lm_head.weight"
+    lm_head_parameters = logical_numel(lm_head_name)
+    active_parameter_count += lm_head_parameters
+    active_weight_bytes += active_bytes(lm_head_name)
+
+    linear_count = sum(kind == "linear_attention" for kind in layer_types)
+    full_count = sum(kind == "full_attention" for kind in layer_types)
     return {
-        "method": "analytic batch-1 active-weight estimate from config; excludes activations, cache, allocator slack, and unfused rereads",
-        "active_parameters_estimate": active_parameters,
-        "estimated_active_weight_bytes": round(estimated_weight_bytes),
+        "method": "header-derived batch-1 active-weight estimate; excludes activations, cache, allocator slack, and unfused rereads",
+        "active_parameters_estimate": active_parameter_count,
+        "estimated_active_weight_bytes": active_weight_bytes,
         "estimated_400gbps_decode_tokens_per_second": round(
-            nominal_bandwidth_gbps * 1_000_000_000 / estimated_weight_bytes, 2
+            nominal_bandwidth_gbps * 1_000_000_000 / active_weight_bytes, 2
         ),
-        "components_per_layer": {
-            "gated_delta_net_parameters": gdn_per_layer,
-            "full_attention_parameters": full_per_layer,
-            "active_routed_expert_parameters": routed_per_layer,
-            "shared_expert_parameters": shared_per_layer,
-            "router_parameters": router_per_layer,
+        "totals_by_component": totals,
+        "average_per_layer": {
+            "gated_delta_net_parameters": round(
+                totals["gated_delta_net_parameters"] / max(linear_count, 1)
+            ),
+            "full_attention_parameters": round(
+                totals["full_attention_parameters"] / max(full_count, 1)
+            ),
+            "active_routed_expert_parameters": round(
+                totals["active_routed_expert_parameters"] / num_layers
+            ),
+            "shared_expert_parameters": round(
+                totals["shared_expert_parameters"] / num_layers
+            ),
+            "router_parameters": round(totals["router_parameters"] / num_layers),
         },
         "layer_counts": {
             "linear_attention": linear_count,
             "full_attention": full_count,
         },
-        "lm_head_parameters": lm_head,
+        "lm_head_parameters": lm_head_parameters,
     }
 
 
@@ -289,7 +361,7 @@ def inspect_checkpoint(
         "weights_hashed": hash_weights,
         "files": files,
         "architecture": architecture,
-        "quantization": config.get("quantization", {}),
+        "quantization": _summarize_quantization(config),
         "safetensors": {
             "tensor_count": len(tensor_headers),
             "dtype_counts": dict(sorted(dtype_counts.items())),
@@ -303,7 +375,7 @@ def inspect_checkpoint(
         "tensor_name_groups": dict(sorted(name_groups.items())),
         "tensor_name_samples": samples,
         "mtp_tensors_present": bool(matching_names["mtp"]),
-        "active_decode_estimate": _active_decode_estimate(config),
+        "active_decode_estimate": _active_decode_estimate(config, tensor_headers),
     }
 
 

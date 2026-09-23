@@ -45,22 +45,66 @@ class CheckpointTests(unittest.TestCase):
         (root / "tokenizer_config.json").write_text("{}", encoding="utf-8")
         (root / "chat_template.jinja").write_text("template", encoding="utf-8")
 
-        payload = b"ab"
-        header = json.dumps(
-            {
-                "weight": {
-                    "dtype": "U8",
-                    "shape": [2],
-                    "data_offsets": [0, 2],
+        tensors: dict[str, dict[str, object]] = {
+            "language_model.lm_head.weight": {
+                "dtype": "U32",
+                "shape": [32, 2],
+                "data_offsets": [0, 4],
+            }
+        }
+        offset = 4
+        layer_types = config["text_config"]["layer_types"]
+        for index, layer_type in enumerate(layer_types):
+            prefix = f"language_model.model.layers.{index}."
+            tensors[prefix + "input_layernorm.weight"] = {
+                "dtype": "BF16",
+                "shape": [8],
+                "data_offsets": [offset, offset + 16],
+            }
+            offset += 16
+            if layer_type == "linear_attention":
+                tensors[prefix + "linear_attn.in_proj_qkv.weight"] = {
+                    "dtype": "U32",
+                    "shape": [8, 2],
+                    "data_offsets": [offset, offset + 64],
                 }
-            },
-            separators=(",", ":"),
-        ).encode("utf-8")
+                offset += 64
+            else:
+                tensors[prefix + "self_attn.q_proj.weight"] = {
+                    "dtype": "U32",
+                    "shape": [8, 2],
+                    "data_offsets": [offset, offset + 64],
+                }
+                offset += 64
+            tensors[prefix + "mlp.gate.weight"] = {
+                "dtype": "U32",
+                "shape": [16, 2],
+                "data_offsets": [offset, offset + 128],
+            }
+            offset += 128
+            tensors[prefix + "mlp.switch_mlp.gate_proj.weight"] = {
+                "dtype": "U32",
+                "shape": [16, 4, 2],
+                "data_offsets": [offset, offset + 512],
+            }
+            offset += 512
+            tensors[prefix + "mlp.shared_expert.gate_proj.weight"] = {
+                "dtype": "U32",
+                "shape": [4, 2],
+                "data_offsets": [offset, offset + 32],
+            }
+            offset += 32
+
+        header = json.dumps(tensors, separators=(",", ":")).encode("utf-8")
+        payload = b"x" * offset
         shard = root / "model-00001-of-00001.safetensors"
         shard.write_bytes(struct.pack("<Q", len(header)) + header + payload)
         index = {
-            "metadata": {"total_size": len(shard.read_bytes()), "total_parameters": 2},
-            "weight_map": {"weight": shard.name},
+            "metadata": {
+                "total_size": len(shard.read_bytes()),
+                "total_parameters": 128,
+            },
+            "weight_map": {name: shard.name for name in tensors},
         }
         (root / "model.safetensors.index.json").write_text(
             json.dumps(index), encoding="utf-8"
@@ -73,15 +117,15 @@ class CheckpointTests(unittest.TestCase):
             self._make_checkpoint(root)
             self.assertEqual(
                 safetensors_header(root / "model-00001-of-00001.safetensors")[
-                    "weight"
+                    "language_model.lm_head.weight"
                 ]["shape"],
-                [2],
+                [32, 2],
             )
             result = inspect_checkpoint(root, hash_weights=True, revision="abc123")
             self.assertEqual(result["revision"], "abc123")
             self.assertEqual(len(result["manifest_sha256"]), 64)
             self.assertFalse(result["mtp_tensors_present"])
-            self.assertEqual(result["tensor_name_samples"], {})
+            self.assertNotIn("mtp", result["tensor_name_samples"])
             self.assertEqual(result["checkpoint_name"], "private-model-name")
             self.assertNotIn(str(root), json.dumps(result))
             self.assertGreater(
@@ -95,22 +139,20 @@ class CheckpointTests(unittest.TestCase):
             shard = root / "model-00001-of-00001.safetensors"
             with shard.open("rb") as handle:
                 size = struct.unpack("<Q", handle.read(8))[0]
-                handle.read(size)
-            # Rebuild a minimal header containing an MTP tensor.
-            header = json.dumps(
-                {
-                    "mtp.weight": {
-                        "dtype": "U8",
-                        "shape": [1],
-                        "data_offsets": [0, 1],
-                    }
-                },
-                separators=(",", ":"),
-            ).encode("utf-8")
-            shard.write_bytes(struct.pack("<Q", len(header)) + header + b"x")
+                existing = json.loads(handle.read(size))
+                payload = handle.read()
+            existing["mtp.weight"] = {
+                "dtype": "U8",
+                "shape": [1],
+                "data_offsets": [len(payload), len(payload) + 1],
+            }
+            header = json.dumps(existing, separators=(",", ":")).encode("utf-8")
+            shard.write_bytes(
+                struct.pack("<Q", len(header)) + header + payload + b"x"
+            )
             index_path = root / "model.safetensors.index.json"
             index = json.loads(index_path.read_text(encoding="utf-8"))
-            index["weight_map"] = {"mtp.weight": shard.name}
+            index["weight_map"]["mtp.weight"] = shard.name
             index_path.write_text(json.dumps(index), encoding="utf-8")
             result = inspect_checkpoint(root, hash_weights=False)
             self.assertTrue(result["mtp_tensors_present"])

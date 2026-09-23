@@ -10,12 +10,28 @@ class EnvironmentTests(unittest.TestCase):
         value = {
             "serial_number": "private",
             "platform_UUID": "private",
-            "nested": [{"machine_name": "private", "chip_type": "Apple M1 Max"}],
+            "model_number": "private",
+            "_spdisplays_display-serial-number": "private",
+            "nested": [
+                {
+                    "machine_name": "private",
+                    "chip_type": "Apple M1 Max",
+                    "power": "InternalBattery-0 (id=12345)",
+                }
+            ],
             "safe": 32,
         }
         self.assertEqual(
             _scrub(value),
-            {"nested": [{"chip_type": "Apple M1 Max"}], "safe": 32},
+            {
+                "nested": [
+                    {
+                        "chip_type": "Apple M1 Max",
+                        "power": "InternalBattery-0 (id=<redacted>)",
+                    }
+                ],
+                "safe": 32,
+            },
         )
 
 
