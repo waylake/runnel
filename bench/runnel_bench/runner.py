@@ -48,7 +48,7 @@ def _request_headers(api_key_env: str | None) -> dict[str, str]:
 def _delta_is_token(delta: dict[str, Any]) -> bool:
     return any(
         delta.get(key) not in (None, "", [], {})
-        for key in ("content", "reasoning_content", "tool_calls")
+        for key in ("content", "reasoning_content", "tool_calls", "text")
     )
 
 
@@ -111,12 +111,14 @@ def run_stream_once(
             if event.get("usage"):
                 usage = event["usage"]
             for choice in event.get("choices", []):
-                delta = choice.get("delta") or {}
+                delta = dict(choice.get("delta") or {})
+                if "text" in choice:
+                    delta["text"] = choice["text"]
                 if _delta_is_token(delta) and first_token is None:
                     first_token = now
                 if _delta_is_token(delta):
                     last_token = now
-                for key in ("content", "reasoning_content"):
+                for key in ("content", "reasoning_content", "text"):
                     value = delta.get(key)
                     if isinstance(value, str):
                         output.extend(value.encode("utf-8"))
