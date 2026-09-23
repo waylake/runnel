@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "workloads": [
+    {
+      "name": "python-multi-file-v1",
+      "description": "Four-file Python repository, analysis-to-patch agent loop",
+      "sha256": "3b0025b132647462ee07755377ba1882f9d0bac978d8dc2af67ed761215b5879",
+      "file_names": [
+        "src/cache.py",
+        "src/repository.py",
+        "src/service.py",
+        "tests/test_cache.py"
+      ],
+      "turn_count": 3
+    },
+    {
+      "name": "typescript-tools-v1",
+      "description": "TypeScript source-index and tool-result insertion loop",
+      "sha256": "6903ff02b1018b6219882d4fb0e15cab647af0e827d61e4bee4d46ac6727dad6",
+      "file_names": [
+        "src/index.ts",
+        "src/tool.ts"
+      ],
+      "turn_count": 3
+    }
+  ]
+}

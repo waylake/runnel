@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "runnel"
+version = "0.0.0"
+description = "Model-specific Apple Silicon inference runtime and performance laboratory"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Runnel contributors" }]
+dependencies = []
+
+[project.scripts]
+runnel-env = "runnel_bench.environment:main"
+runnel-fingerprint = "runnel_bench.checkpoint:main"
+runnel-bench = "runnel_bench.runner:main"
+
+[tool.setuptools.packages.find]
+where = ["bench"]
+include = ["runnel_bench*"]

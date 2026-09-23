@@ -1,0 +1,25 @@
+.DS_Store
+.venv/
+__pycache__/
+*.py[cod]
+*.so
+*.dylib
+*.o
+*.metal
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.coverage
+
+# Local/private benchmark material. Curated, redacted JSONL is committed under bench/results/.
+bench/private/
+bench/results/local/
+bench/cache/
+*.prompt
+*.chat.jsonl
+
+# Native build products
+DerivedData/
+xcuserdata/
+*.xcuserstate
