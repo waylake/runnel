@@ -103,6 +103,7 @@ def _active_decode_estimate(
     text = config.get("text_config", config)
     num_layers = int(text["num_hidden_layers"])
     num_experts = int(text["num_experts"])
+    experts_per_token = int(text["num_experts_per_tok"])
     layer_types = list(text["layer_types"])
     quantization = config.get("quantization", {})
     bits = int(quantization.get("bits", 16))
@@ -164,11 +165,16 @@ def _active_decode_estimate(
             for name in names
             if ".switch_mlp." in name and name.endswith(".weight")
         ]
-        routed_parameters = sum(logical_numel(name) // num_experts for name in routed_names)
+        routed_parameters = (
+            sum(logical_numel(name) // num_experts for name in routed_names)
+            * experts_per_token
+        )
         totals["active_routed_expert_parameters"] += routed_parameters
         active_parameter_count += routed_parameters
         active_weight_bytes += round(
-            sum(active_bytes(name) for name in routed_names) / num_experts
+            sum(active_bytes(name) for name in routed_names)
+            / num_experts
+            * experts_per_token
         )
 
         shared_names = [
@@ -190,6 +196,12 @@ def _active_decode_estimate(
         totals["router_parameters"] += router_parameters
         active_parameter_count += router_parameters
         active_weight_bytes += sum(active_bytes(name) for name in router_names)
+
+    final_norm_name = "language_model.model.norm.weight"
+    final_norm_parameters = logical_numel(final_norm_name)
+    totals["layer_norm_parameters"] += final_norm_parameters
+    active_parameter_count += final_norm_parameters
+    active_weight_bytes += active_bytes(final_norm_name)
 
     lm_head_name = "language_model.lm_head.weight"
     lm_head_parameters = logical_numel(lm_head_name)

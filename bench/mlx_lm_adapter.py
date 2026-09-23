@@ -31,6 +31,89 @@ def summarize(values: list[float]) -> dict[str, float | int | None]:
     }
 
 
+def _fuse_routed_gate_up(model) -> int:
+    """Replace separate routed gate/up gathers with one packed gather-qmm."""
+    import gc
+
+    import mlx.core as mx
+    import mlx.nn as nn
+    from mlx_lm.models.switch_layers import _gather_sort, _scatter_unsort
+
+    class FusedQuantizedSwitchGLU(nn.Module):
+        def __init__(self, old):
+            super().__init__()
+            gate = old.gate_proj
+            up = old.up_proj
+            if not (
+                isinstance(gate, type(up))
+                and gate.bits == up.bits
+                and gate.group_size == up.group_size
+                and gate.mode == up.mode
+            ):
+                raise ValueError("gate/up quantization formats differ")
+            if ("bias" in gate) or ("bias" in up):
+                raise ValueError("module biases are not expected for this checkpoint")
+
+            self.weight = mx.concatenate([up["weight"], gate["weight"]], axis=1)
+            self.scales = mx.concatenate([up["scales"], gate["scales"]], axis=1)
+            up_biases = up.get("biases")
+            gate_biases = gate.get("biases")
+            if (up_biases is None) != (gate_biases is None):
+                raise ValueError("gate/up affine-bias formats differ")
+            self.biases = (
+                None
+                if up_biases is None
+                else mx.concatenate([up_biases, gate_biases], axis=1)
+            )
+            self.group_size = gate.group_size
+            self.bits = gate.bits
+            self.mode = gate.mode
+            self.down_proj = old.down_proj
+            self.activation = old.activation
+            self.freeze()
+            mx.eval(self.parameters())
+
+        def __call__(self, x, indices):
+            x = mx.expand_dims(x, (-2, -3))
+            do_sort = indices.size >= 64
+            idx = indices
+            inv_order = None
+            if do_sort:
+                x, idx, inv_order = _gather_sort(x, indices)
+            fused = mx.gather_qmm(
+                x,
+                self["weight"],
+                self["scales"],
+                self.get("biases"),
+                rhs_indices=idx,
+                transpose=True,
+                group_size=self.group_size,
+                bits=self.bits,
+                mode=self.mode,
+                sorted_indices=do_sort,
+            )
+            x_up, x_gate = mx.split(fused, 2, axis=-1)
+            out = self.down_proj(
+                self.activation(x_up, x_gate), idx, sorted_indices=do_sort
+            )
+            if do_sort:
+                out = _scatter_unsort(out, inv_order, indices.shape)
+            return out.squeeze(-2)
+
+    count = 0
+    for layer in model.language_model.layers:
+        old = layer.mlp.switch_mlp
+        if not hasattr(old.gate_proj, "bits"):
+            continue
+        fused = FusedQuantizedSwitchGLU(old)
+        layer.mlp.switch_mlp = fused
+        count += 1
+        del old, fused
+        gc.collect()
+        mx.clear_cache()
+    return count
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", type=Path, required=True)
@@ -41,6 +124,8 @@ def main() -> int:
     parser.add_argument("--max-tokens", type=int, default=64)
     parser.add_argument("--warmups", type=int, default=1)
     parser.add_argument("--trials", type=int, default=3)
+    parser.add_argument("--reference-result", type=Path)
+    parser.add_argument("--fuse-routed-gate-up", action="store_true")
     parser.add_argument("--kv-bits", type=int, choices=(None, 8, 6, 5, 4, 3, 2))
     parser.add_argument("--kv-group-size", type=int, default=64)
     parser.add_argument("--quantized-kv-start", type=int, default=0)
@@ -69,6 +154,13 @@ def main() -> int:
     prompt_ids = tokenizer.encode(prompt_artifact["text"], add_special_tokens=False)
     if prompt_ids != expected_ids:
         raise SystemExit("mlx tokenizer did not reproduce the prompt token IDs")
+
+    fused_layers = 0
+    fusion_started = time.perf_counter()
+    if args.fuse_routed_gate_up:
+        fused_layers = _fuse_routed_gate_up(model)
+        mx.synchronize()
+    fusion_seconds = time.perf_counter() - fusion_started
 
     kwargs: dict[str, Any] = {
         "sampler": make_sampler(temp=0.0),
@@ -144,6 +236,41 @@ def main() -> int:
         print(json.dumps({k: v for k, v in record.items() if k != "token_ids"}), flush=True)
 
     measured = [item for item in trials if item["phase"] == "trial"]
+    correctness = {
+        "status": "reference",
+        "reference": "stock mlx-lm greedy token stream",
+    }
+    if args.reference_result:
+        reference = json.loads(args.reference_result.read_text(encoding="utf-8"))
+        reference_trials = [
+            item for item in reference["trials"] if item["phase"] == "trial"
+        ]
+        if not reference_trials or "token_ids" not in reference_trials[0]:
+            raise SystemExit("reference result has no measured token IDs")
+        reference_ids = reference_trials[0]["token_ids"]
+        matched = all(item["token_ids"] == reference_ids for item in measured)
+        correctness = {
+            "status": "matched" if matched else "mismatched",
+            "reference": args.reference_result.name,
+            "first_differing_token_index": next(
+                (
+                    index
+                    for index, pair in enumerate(
+                        zip(measured[0]["token_ids"], reference_ids)
+                    )
+                    if pair[0] != pair[1]
+                ),
+                None,
+            )
+            if measured and not matched
+            else None,
+        }
+    elif args.fuse_routed_gate_up:
+        correctness = {
+            "status": "not-compared",
+            "reference": "pass --reference-result for greedy token parity",
+        }
+
     result = {
         "schema_version": 1,
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -154,14 +281,20 @@ def main() -> int:
             "checkpoint_manifest_sha256": checkpoint["manifest_sha256"],
             "checkpoint_revision": checkpoint.get("revision"),
         },
+        "correctness": correctness,
         "engine": {
-            "name": "mlx-lm",
+            "name": "mlx-lm+fused-routed-gate-up"
+            if args.fuse_routed_gate_up
+            else "mlx-lm",
             "runtime_version": importlib.metadata.version("mlx-lm"),
             "mlx_version": importlib.metadata.version("mlx"),
             "adapter": "direct-stream-v1",
+            "runtime_manifest": "runtime-mlx-lm-0.31.3.json",
         },
         "model_load": {
             "seconds": round(load_seconds, 6),
+            "fusion_setup_seconds": round(fusion_seconds, 6),
+            "fused_routed_gate_up_layers": fused_layers,
             "checkpoint": prompt_artifact["workload"],
         },
         "protocol": {
@@ -176,6 +309,10 @@ def main() -> int:
             "warmups": args.warmups,
             "trials_requested": args.trials,
             "cache_state": "new prompt cache per generation",
+            "experiment": {
+                "fused_routed_gate_up": args.fuse_routed_gate_up,
+                "fused_layers": fused_layers,
+            },
             "kv": {
                 "bits": args.kv_bits,
                 "group_size": args.kv_group_size if args.kv_bits is not None else None,

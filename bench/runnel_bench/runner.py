@@ -141,8 +141,13 @@ def run_stream_once(
     else:
         decode_tps = (completion_tokens - 1) / (last_token - first_token)
 
+    cached_prompt_tokens = int(
+        (usage.get("prompt_tokens_details") or {}).get("cached_tokens") or 0
+    )
     return {
         "prompt_tokens": prompt_tokens,
+        "cached_prompt_tokens": cached_prompt_tokens,
+        "uncached_prompt_tokens": prompt_tokens - cached_prompt_tokens,
         "completion_tokens": completion_tokens,
         "first_event_s": round(first_event - started, 6) if first_event else None,
         "ttft_s": round(first_token - started, 6) if first_token else None,
@@ -234,9 +239,13 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
             "model": args.model,
             "runtime_version": args.runtime_version,
         },
+        "correctness": {
+            "status": args.correctness_status,
+            "reference": args.correctness_reference,
+        },
         "protocol": {
             "batch_size": 1,
-            "semantic_mode": "exact",
+            "semantic_mode": args.semantic_mode,
             "sampling": {
                 "temperature": args.temperature,
                 "top_p": args.top_p,
@@ -256,6 +265,24 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
         "summary": {
             "successful_trials": len(measured),
             "ttft_s": _summary([x["ttft_s"] for x in measured if x["ttft_s"] is not None]),
+            "ttft_s_by_cache_state": {
+                "uncached": _summary(
+                    [
+                        x["ttft_s"]
+                        for x in measured
+                        if x.get("cached_prompt_tokens") == 0
+                        and x["ttft_s"] is not None
+                    ]
+                ),
+                "prefix_reused": _summary(
+                    [
+                        x["ttft_s"]
+                        for x in measured
+                        if x.get("cached_prompt_tokens", 0) > 0
+                        and x["ttft_s"] is not None
+                    ]
+                ),
+            },
             "end_to_end_s": _summary(
                 [x["end_to_end_s"] for x in measured if x["end_to_end_s"] is not None]
             ),
@@ -264,6 +291,21 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
                     x["observed_decode_tokens_per_second"]
                     for x in measured
                     if x["observed_decode_tokens_per_second"] is not None
+                ]
+            ),
+            "server_prompt_tokens_per_second": _summary(
+                [
+                    x["usage"]["prompt_tokens_per_second"]
+                    for x in measured
+                    if x.get("usage", {}).get("prompt_tokens_per_second") is not None
+                ]
+            ),
+            "server_generation_tokens_per_second": _summary(
+                [
+                    x["usage"]["generation_tokens_per_second"]
+                    for x in measured
+                    if x.get("usage", {}).get("generation_tokens_per_second")
+                    is not None
                 ]
             ),
         },
@@ -276,6 +318,17 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--model", required=True)
     parser.add_argument("--engine-name", required=True)
     parser.add_argument("--runtime-version", default="unknown")
+    parser.add_argument(
+        "--semantic-mode",
+        choices=("exact", "approximate", "baseline"),
+        default="exact",
+    )
+    parser.add_argument(
+        "--correctness-status",
+        choices=("not-compared", "matched", "mismatched", "reference"),
+        default="not-compared",
+    )
+    parser.add_argument("--correctness-reference")
     parser.add_argument("--prompt", type=Path, required=True)
     parser.add_argument("--environment", type=Path, required=True)
     parser.add_argument("--checkpoint-manifest", type=Path, required=True)

@@ -95,6 +95,12 @@ class CheckpointTests(unittest.TestCase):
             }
             offset += 32
 
+        tensors["language_model.model.norm.weight"] = {
+            "dtype": "BF16",
+            "shape": [8],
+            "data_offsets": [offset, offset + 16],
+        }
+        offset += 16
         header = json.dumps(tensors, separators=(",", ":")).encode("utf-8")
         payload = b"x" * offset
         shard = root / "model-00001-of-00001.safetensors"
@@ -130,6 +136,12 @@ class CheckpointTests(unittest.TestCase):
             self.assertNotIn(str(root), json.dumps(result))
             self.assertGreater(
                 result["active_decode_estimate"]["active_parameters_estimate"], 0
+            )
+            self.assertEqual(
+                result["active_decode_estimate"]["totals_by_component"][
+                    "active_routed_expert_parameters"
+                ],
+                256,
             )
 
     def test_mtp_tensor_is_detected(self) -> None:

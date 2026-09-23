@@ -1,0 +1,13 @@
+{
+  "enable_thinking": false,
+  "turboquant_kv_enabled": true,
+  "turboquant_kv_bits": 8.0,
+  "turboquant_skip_last": true,
+  "qwen35_ane_prefill_enabled": false,
+  "qwen35_ane_prefill_cpu_enabled": false,
+  "qwen35_oq_a8_enabled": false,
+  "specprefill_enabled": false,
+  "dflash_enabled": false,
+  "mtp_enabled": false,
+  "moe_expert_offload_enabled": false
+}

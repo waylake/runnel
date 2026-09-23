@@ -58,6 +58,8 @@ class RunnerTests(unittest.TestCase):
             server.server_close()
             thread.join(timeout=2.0)
         self.assertEqual(result["prompt_tokens"], 3)
+        self.assertEqual(result["cached_prompt_tokens"], 0)
+        self.assertEqual(result["uncached_prompt_tokens"], 3)
         self.assertEqual(result["completion_tokens"], 2)
         self.assertEqual(result["output_bytes"], 2)
         self.assertEqual(result["stream_event_count"], 3)
