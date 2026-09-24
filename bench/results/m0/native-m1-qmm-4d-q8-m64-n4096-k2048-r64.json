@@ -1,0 +1,4 @@
+{
+  "protocol": {"bits": "q8", "tokens": 64, "outputs": 4096, "reduction_size": 2048, "token_tile": 8, "output_tile": 32, "reduction_tile": 64, "warmups": 2, "trials": 7},
+  "measurement": {"threadgroups": 1024, "weight_bytes": 8388608, "weight_gib_per_second": 2.490, "median_wall_micros": 3636.167, "median_gpu_micros": 3368.625, "output_checksum": -12808.676, "reference_checksum": -12808.676, "max_absolute_error": 0.000, "rmse": 0.000, "trials": [{"wall_micros": 4099.375, "gpu_micros": 3793.250}, {"wall_micros": 4122.000, "gpu_micros": 3459.125}, {"wall_micros": 3619.125, "gpu_micros": 3324.250}, {"wall_micros": 3582.000, "gpu_micros": 3367.792}, {"wall_micros": 3577.375, "gpu_micros": 3326.625}, {"wall_micros": 3965.458, "gpu_micros": 3719.958}, {"wall_micros": 3636.167, "gpu_micros": 3368.625}]}
+}

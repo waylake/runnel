@@ -1,0 +1,761 @@
+{
+  "created_at_utc": "2026-09-23T18:17:40.795513+00:00",
+  "protocol": {
+    "bits": "q4",
+    "engine": "Runnel native Metal two-stage MoE",
+    "experts": "3,17,29,42,50,61,7,55",
+    "groups": 32,
+    "layers": [
+      0,
+      1,
+      2,
+      10,
+      20,
+      30,
+      39
+    ],
+    "model_name": "Ornith-1.5-35B-A3B-MLX-4bit",
+    "threads": 512,
+    "trials": 5,
+    "warmups": 2,
+    "weights_included": false
+  },
+  "records": [
+    {
+      "layer": 0,
+      "manifest": {
+        "bits": 4,
+        "down_shape": [
+          256,
+          2048,
+          64
+        ],
+        "gate_up_shape": [
+          256,
+          1024,
+          256
+        ],
+        "layer": 0,
+        "model_name": "Ornith-1.5-35B-A3B-MLX-4bit",
+        "note": "temporary derived artifact; model weights are not committed",
+        "output_bytes": 452989032,
+        "output_sha256": "d9dbe74416a4665b561f3f8987f09fc6abaf0aa30a7dabef85a7f3b3b8af96ea",
+        "schema_version": 1,
+        "selected_experts": [
+          3,
+          17,
+          29,
+          42,
+          50,
+          61,
+          7,
+          55
+        ],
+        "tensor_sha256": {
+          "language_model.model.layers.0.mlp.switch_mlp.down_proj.biases": "3245131f75360f1e450e59245f3c6c926a987fdae816b493890825cede592c13",
+          "language_model.model.layers.0.mlp.switch_mlp.down_proj.scales": "ed9ed9c485b9b9cbd87e8f2b4ef7fae3d8530bc82086e0388e45cbafa626aa62",
+          "language_model.model.layers.0.mlp.switch_mlp.down_proj.weight": "c007cf0241e20e9afe8d65d5c3ae2f4c4c4f87b90a17b877ac41515046445c4c",
+          "language_model.model.layers.0.mlp.switch_mlp.gate_proj.biases": "7f881d8b8c3dc4fed71fa4bc551d59edce8b3cdc6c4a945fccd61470a56ef87e",
+          "language_model.model.layers.0.mlp.switch_mlp.gate_proj.scales": "d01dba6115ed7cbf62ce51f8b605dd96a27f228b97aa822fde7e11603d8b3ec7",
+          "language_model.model.layers.0.mlp.switch_mlp.gate_proj.weight": "774e9243983a05175378e9cebc2cfb5355bcdb0bfe5ecc5c5de6e3a5f827799d",
+          "language_model.model.layers.0.mlp.switch_mlp.up_proj.biases": "11b15f6df88abf079c64382b21e01b80c4d8c9b2878d80aa50e991f6d2dc758a",
+          "language_model.model.layers.0.mlp.switch_mlp.up_proj.scales": "ea60839701808e909ac95f3441afd293a88a47cde2d0f9924bf4407e87562c99",
+          "language_model.model.layers.0.mlp.switch_mlp.up_proj.weight": "9cfbbd40ea626a5d20cac0a11ad5888e15a5c0e31ee07b9749e11090ca308616"
+        },
+        "total_experts": 256
+      },
+      "native": {
+        "measurements": [
+          {
+            "debug_checksum": 0.0,
+            "debug_max_error": 0.0,
+            "debug_reference_checksum": 0.0,
+            "max_absolute_error": 0.009,
+            "median_gpu_micros": 214.75,
+            "median_wall_micros": 442.542,
+            "output_checksum": -1.062,
+            "reference_checksum": 0.079,
+            "rmse": 0.003,
+            "threadgroups": 32,
+            "threads_per_threadgroup": 512,
+            "trials": [
+              {
+                "gpu_micros": 215.625,
+                "wall_micros": 444.417
+              },
+              {
+                "gpu_micros": 213.875,
+                "wall_micros": 432.459
+              },
+              {
+                "gpu_micros": 214.75,
+                "wall_micros": 430.333
+              },
+              {
+                "gpu_micros": 215.667,
+                "wall_micros": 450.583
+              },
+              {
+                "gpu_micros": 212.875,
+                "wall_micros": 442.542
+              }
+            ],
+            "two_stage": true,
+            "weight_bytes": 12582912,
+            "weight_gib_per_second": 58.593
+          }
+        ],
+        "protocol": {
+          "bits": "q4",
+          "dataset_loaded": true,
+          "groups": 32,
+          "schedule": "two-stage",
+          "selected_experts": [
+            3,
+            17,
+            29,
+            42,
+            50,
+            61,
+            7,
+            55
+          ],
+          "total_experts": 256,
+          "trials": 5,
+          "warmups": 2
+        }
+      }
+    },
+    {
+      "layer": 1,
+      "manifest": {
+        "bits": 4,
+        "down_shape": [
+          256,
+          2048,
+          64
+        ],
+        "gate_up_shape": [
+          256,
+          1024,
+          256
+        ],
+        "layer": 1,
+        "model_name": "Ornith-1.5-35B-A3B-MLX-4bit",
+        "note": "temporary derived artifact; model weights are not committed",
+        "output_bytes": 452989032,
+        "output_sha256": "012aaf4cf8a2af7d2979badfacf86cd27507da3a6087bf91b36893a0c656f214",
+        "schema_version": 1,
+        "selected_experts": [
+          3,
+          17,
+          29,
+          42,
+          50,
+          61,
+          7,
+          55
+        ],
+        "tensor_sha256": {
+          "language_model.model.layers.1.mlp.switch_mlp.down_proj.biases": "de10ebb8c78cfc5b3780c0ce2047e2e32114258d8e77e0e81eb202a1a291095b",
+          "language_model.model.layers.1.mlp.switch_mlp.down_proj.scales": "f7b80bffcd88364753bc213c7a200901642b791b6a325fdb8ee7cdc62e234806",
+          "language_model.model.layers.1.mlp.switch_mlp.down_proj.weight": "3fd59b8b0906990ab7fb5f2613f8709104aa797a8414dc90988149114a9821cf",
+          "language_model.model.layers.1.mlp.switch_mlp.gate_proj.biases": "d65451bd31b92838188596d7deaae555a13730b6154458d04dfd3537ad611334",
+          "language_model.model.layers.1.mlp.switch_mlp.gate_proj.scales": "ed77af4c1beb3bdf21322c7fe34261d1c466496f901ff7df40d3bb8d1024a678",
+          "language_model.model.layers.1.mlp.switch_mlp.gate_proj.weight": "6b3b2e1b0742c96fb069a053eb22e767fa320dbcfc85aed7e936c6a7f11e1a14",
+          "language_model.model.layers.1.mlp.switch_mlp.up_proj.biases": "5c6bf1a49978fbb5efee7d3a6822b0b22ac67e603a4c7d9b0ef5052e95d80f7d",
+          "language_model.model.layers.1.mlp.switch_mlp.up_proj.scales": "11dddc76280593e74524efa2779197b4e84612b1b4237144bd9f88be190c7e07",
+          "language_model.model.layers.1.mlp.switch_mlp.up_proj.weight": "92a1a322e2a017646d0e530fd602369e68912b5a1bc254e95dbf36f5b48a648e"
+        },
+        "total_experts": 256
+      },
+      "native": {
+        "measurements": [
+          {
+            "debug_checksum": 0.0,
+            "debug_max_error": 0.0,
+            "debug_reference_checksum": 0.0,
+            "max_absolute_error": 0.014,
+            "median_gpu_micros": 214.875,
+            "median_wall_micros": 440.666,
+            "output_checksum": 0.107,
+            "reference_checksum": -0.042,
+            "rmse": 0.004,
+            "threadgroups": 32,
+            "threads_per_threadgroup": 512,
+            "trials": [
+              {
+                "gpu_micros": 218.625,
+                "wall_micros": 440.666
+              },
+              {
+                "gpu_micros": 214.875,
+                "wall_micros": 457.833
+              },
+              {
+                "gpu_micros": 214.625,
+                "wall_micros": 444.709
+              },
+              {
+                "gpu_micros": 213.167,
+                "wall_micros": 436.417
+              },
+              {
+                "gpu_micros": 216.75,
+                "wall_micros": 436.708
+              }
+            ],
+            "two_stage": true,
+            "weight_bytes": 12582912,
+            "weight_gib_per_second": 58.559
+          }
+        ],
+        "protocol": {
+          "bits": "q4",
+          "dataset_loaded": true,
+          "groups": 32,
+          "schedule": "two-stage",
+          "selected_experts": [
+            3,
+            17,
+            29,
+            42,
+            50,
+            61,
+            7,
+            55
+          ],
+          "total_experts": 256,
+          "trials": 5,
+          "warmups": 2
+        }
+      }
+    },
+    {
+      "layer": 2,
+      "manifest": {
+        "bits": 4,
+        "down_shape": [
+          256,
+          2048,
+          64
+        ],
+        "gate_up_shape": [
+          256,
+          1024,
+          256
+        ],
+        "layer": 2,
+        "model_name": "Ornith-1.5-35B-A3B-MLX-4bit",
+        "note": "temporary derived artifact; model weights are not committed",
+        "output_bytes": 452989032,
+        "output_sha256": "cf7da0a9c142a12f445605d8407c22b661cf311d65921ff9d5c251b5ba99dc36",
+        "schema_version": 1,
+        "selected_experts": [
+          3,
+          17,
+          29,
+          42,
+          50,
+          61,
+          7,
+          55
+        ],
+        "tensor_sha256": {
+          "language_model.model.layers.2.mlp.switch_mlp.down_proj.biases": "3b953bfc0bdd09a8057a8eeacaeda7752b2f5f72410c2a2d5336acd6ba505191",
+          "language_model.model.layers.2.mlp.switch_mlp.down_proj.scales": "ae8438fb4b3e2dfa529c8e7c93ecd4fd392b0d647605e22243b3c57ba5fee14f",
+          "language_model.model.layers.2.mlp.switch_mlp.down_proj.weight": "0ae0e7ccb1dc92b44b6e2d1af32fcd32291a0a4d1d6056fbe1558050a7b4add7",
+          "language_model.model.layers.2.mlp.switch_mlp.gate_proj.biases": "a4ec978be57b1f0d0cca8981b0aa729970a42bcab3b7c6b56ff2113f784b62d5",
+          "language_model.model.layers.2.mlp.switch_mlp.gate_proj.scales": "bda24dc68fa51ec54c38a9bb14b1d336483c563b9f78c7ec1283a5489ad50b5f",
+          "language_model.model.layers.2.mlp.switch_mlp.gate_proj.weight": "62ab24a7ce87ef6e7ca548adc7b4396fcc6a73e37cab57201e0770d19c5edf1f",
+          "language_model.model.layers.2.mlp.switch_mlp.up_proj.biases": "bff2903ef90880835389189f6f8278196a640bb51da4efc91bf9ba94f930a3b7",
+          "language_model.model.layers.2.mlp.switch_mlp.up_proj.scales": "fdcfe9af605ece6578ed64ca614a9e077a8015e6fd5ff34832ca56ad676c79f5",
+          "language_model.model.layers.2.mlp.switch_mlp.up_proj.weight": "0d8e10871b13ee5ecfa812e3370433952d7d375367b4b2bf640eb5d660d9974b"
+        },
+        "total_experts": 256
+      },
+      "native": {
+        "measurements": [
+          {
+            "debug_checksum": 0.0,
+            "debug_max_error": 0.0,
+            "debug_reference_checksum": 0.0,
+            "max_absolute_error": 0.014,
+            "median_gpu_micros": 215.75,
+            "median_wall_micros": 457.167,
+            "output_checksum": 2.254,
+            "reference_checksum": 0.021,
+            "rmse": 0.004,
+            "threadgroups": 32,
+            "threads_per_threadgroup": 512,
+            "trials": [
+              {
+                "gpu_micros": 214.625,
+                "wall_micros": 489.917
+              },
+              {
+                "gpu_micros": 220.833,
+                "wall_micros": 503.208
+              },
+              {
+                "gpu_micros": 215.458,
+                "wall_micros": 439.542
+              },
+              {
+                "gpu_micros": 215.75,
+                "wall_micros": 457.167
+              },
+              {
+                "gpu_micros": 217.792,
+                "wall_micros": 451.25
+              }
+            ],
+            "two_stage": true,
+            "weight_bytes": 12582912,
+            "weight_gib_per_second": 58.322
+          }
+        ],
+        "protocol": {
+          "bits": "q4",
+          "dataset_loaded": true,
+          "groups": 32,
+          "schedule": "two-stage",
+          "selected_experts": [
+            3,
+            17,
+            29,
+            42,
+            50,
+            61,
+            7,
+            55
+          ],
+          "total_experts": 256,
+          "trials": 5,
+          "warmups": 2
+        }
+      }
+    },
+    {
+      "layer": 10,
+      "manifest": {
+        "bits": 4,
+        "down_shape": [
+          256,
+          2048,
+          64
+        ],
+        "gate_up_shape": [
+          256,
+          1024,
+          256
+        ],
+        "layer": 10,
+        "model_name": "Ornith-1.5-35B-A3B-MLX-4bit",
+        "note": "temporary derived artifact; model weights are not committed",
+        "output_bytes": 452989032,
+        "output_sha256": "5165222138f9bea8d6ae00aa96b47c7a544b6407eed4d27c154073d66bfed9ab",
+        "schema_version": 1,
+        "selected_experts": [
+          3,
+          17,
+          29,
+          42,
+          50,
+          61,
+          7,
+          55
+        ],
+        "tensor_sha256": {
+          "language_model.model.layers.10.mlp.switch_mlp.down_proj.biases": "7477133c3f8e63c3dc7b04d1623016033c28829969a17fc79dfe57b01819f076",
+          "language_model.model.layers.10.mlp.switch_mlp.down_proj.scales": "3a290967af585f92d2b8725999b65ecf451b84f522ae1169ab782bdf505885ab",
+          "language_model.model.layers.10.mlp.switch_mlp.down_proj.weight": "0046d4d2bb6b94e4a52a93449765a8bc58e04b7511f0ee6b65d4ef17cb1292a2",
+          "language_model.model.layers.10.mlp.switch_mlp.gate_proj.biases": "1a99f565c1ba1e73134609c15888025482a9a293a675627cff4678e0954d55e0",
+          "language_model.model.layers.10.mlp.switch_mlp.gate_proj.scales": "0777207f54d6ff1d18f519fcc3d030b11f5e0e54ec1eddbb6d491d316a97ffa6",
+          "language_model.model.layers.10.mlp.switch_mlp.gate_proj.weight": "4009c93ae811fb16067b6139010963017e1cbb7c9b65b27cafcaaa82c46ac6a5",
+          "language_model.model.layers.10.mlp.switch_mlp.up_proj.biases": "ad981919de262f48a4ff9de1c69957caa2eb7ca5142ca92dff875f9ffca240c3",
+          "language_model.model.layers.10.mlp.switch_mlp.up_proj.scales": "a8b5c58be88b4721670450110b41ac39422bc23a1e5f8150abd1c536ad6e8117",
+          "language_model.model.layers.10.mlp.switch_mlp.up_proj.weight": "f8c44cfce45537ca045126551a2e3b9467412b37221196078b8a37bbc0a45c7c"
+        },
+        "total_experts": 256
+      },
+      "native": {
+        "measurements": [
+          {
+            "debug_checksum": 0.0,
+            "debug_max_error": 0.0,
+            "debug_reference_checksum": 0.0,
+            "max_absolute_error": 0.017,
+            "median_gpu_micros": 214.708,
+            "median_wall_micros": 461.083,
+            "output_checksum": 1.783,
+            "reference_checksum": 0.189,
+            "rmse": 0.005,
+            "threadgroups": 32,
+            "threads_per_threadgroup": 512,
+            "trials": [
+              {
+                "gpu_micros": 215.708,
+                "wall_micros": 461.916
+              },
+              {
+                "gpu_micros": 214.458,
+                "wall_micros": 453.958
+              },
+              {
+                "gpu_micros": 214.292,
+                "wall_micros": 473.458
+              },
+              {
+                "gpu_micros": 214.708,
+                "wall_micros": 453.125
+              },
+              {
+                "gpu_micros": 215.625,
+                "wall_micros": 461.083
+              }
+            ],
+            "two_stage": true,
+            "weight_bytes": 12582912,
+            "weight_gib_per_second": 58.605
+          }
+        ],
+        "protocol": {
+          "bits": "q4",
+          "dataset_loaded": true,
+          "groups": 32,
+          "schedule": "two-stage",
+          "selected_experts": [
+            3,
+            17,
+            29,
+            42,
+            50,
+            61,
+            7,
+            55
+          ],
+          "total_experts": 256,
+          "trials": 5,
+          "warmups": 2
+        }
+      }
+    },
+    {
+      "layer": 20,
+      "manifest": {
+        "bits": 4,
+        "down_shape": [
+          256,
+          2048,
+          64
+        ],
+        "gate_up_shape": [
+          256,
+          1024,
+          256
+        ],
+        "layer": 20,
+        "model_name": "Ornith-1.5-35B-A3B-MLX-4bit",
+        "note": "temporary derived artifact; model weights are not committed",
+        "output_bytes": 452989032,
+        "output_sha256": "8a421411ce4d0146a78ef967a34c646022e79b51ef88cf7abd5a5c7d9151b940",
+        "schema_version": 1,
+        "selected_experts": [
+          3,
+          17,
+          29,
+          42,
+          50,
+          61,
+          7,
+          55
+        ],
+        "tensor_sha256": {
+          "language_model.model.layers.20.mlp.switch_mlp.down_proj.biases": "88a4b5c667470361ff1a8a50271f189dd2185c3b1d8bffc9e5f4d8a5b800583a",
+          "language_model.model.layers.20.mlp.switch_mlp.down_proj.scales": "a3cad73bb65e3315950e68055270fbaf8f9e66434cf8e12f1922ec700b540555",
+          "language_model.model.layers.20.mlp.switch_mlp.down_proj.weight": "1bdaf550cf5fe076b076dba79696d27a8bc4959e9590bac38e8d49e53e4ca228",
+          "language_model.model.layers.20.mlp.switch_mlp.gate_proj.biases": "09a664bd4b57026b041fd4e9ece1237ab63661996a06688632f41f0000b8012e",
+          "language_model.model.layers.20.mlp.switch_mlp.gate_proj.scales": "c9d527596f7e94af80eb0c2d52ea364c7ae30171858bf352bb25be7f6790f91e",
+          "language_model.model.layers.20.mlp.switch_mlp.gate_proj.weight": "a281b059a1866c4d99648c42ad5d1de9f8cb7816f5d05e682ab3231a64990157",
+          "language_model.model.layers.20.mlp.switch_mlp.up_proj.biases": "95a7cdb9f577b20f65813efddbd1c910ba5672c41c9e0e5946ec95bcb1a85bdf",
+          "language_model.model.layers.20.mlp.switch_mlp.up_proj.scales": "b7d6cb77b260877513feaf36a121ad42dc51c33b55fd97b14965e40f39edfe0a",
+          "language_model.model.layers.20.mlp.switch_mlp.up_proj.weight": "8ed04ad8239ca278627c61c3ee5aa9e679c7de32eb17b580a6e92d4632074a87"
+        },
+        "total_experts": 256
+      },
+      "native": {
+        "measurements": [
+          {
+            "debug_checksum": 0.0,
+            "debug_max_error": 0.0,
+            "debug_reference_checksum": 0.0,
+            "max_absolute_error": 0.02,
+            "median_gpu_micros": 216.167,
+            "median_wall_micros": 441.792,
+            "output_checksum": 2.771,
+            "reference_checksum": 0.037,
+            "rmse": 0.006,
+            "threadgroups": 32,
+            "threads_per_threadgroup": 512,
+            "trials": [
+              {
+                "gpu_micros": 217.0,
+                "wall_micros": 468.042
+              },
+              {
+                "gpu_micros": 216.167,
+                "wall_micros": 444.917
+              },
+              {
+                "gpu_micros": 219.75,
+                "wall_micros": 438.333
+              },
+              {
+                "gpu_micros": 214.333,
+                "wall_micros": 440.834
+              },
+              {
+                "gpu_micros": 214.375,
+                "wall_micros": 441.792
+              }
+            ],
+            "two_stage": true,
+            "weight_bytes": 12582912,
+            "weight_gib_per_second": 58.209
+          }
+        ],
+        "protocol": {
+          "bits": "q4",
+          "dataset_loaded": true,
+          "groups": 32,
+          "schedule": "two-stage",
+          "selected_experts": [
+            3,
+            17,
+            29,
+            42,
+            50,
+            61,
+            7,
+            55
+          ],
+          "total_experts": 256,
+          "trials": 5,
+          "warmups": 2
+        }
+      }
+    },
+    {
+      "layer": 30,
+      "manifest": {
+        "bits": 4,
+        "down_shape": [
+          256,
+          2048,
+          64
+        ],
+        "gate_up_shape": [
+          256,
+          1024,
+          256
+        ],
+        "layer": 30,
+        "model_name": "Ornith-1.5-35B-A3B-MLX-4bit",
+        "note": "temporary derived artifact; model weights are not committed",
+        "output_bytes": 452989032,
+        "output_sha256": "9c3e0beb76f661658db74f5b20852daeccd8284ac864148ea832381e77c7a566",
+        "schema_version": 1,
+        "selected_experts": [
+          3,
+          17,
+          29,
+          42,
+          50,
+          61,
+          7,
+          55
+        ],
+        "tensor_sha256": {
+          "language_model.model.layers.30.mlp.switch_mlp.down_proj.biases": "ff644fa22199be91fa5624ec971971e14735fdd0e0248441f72399dccb6131ae",
+          "language_model.model.layers.30.mlp.switch_mlp.down_proj.scales": "538277c55fdeb3f2a18788ab9d01cc49eb0ea2c0bf9062b1fb92d2a7fb5a76d1",
+          "language_model.model.layers.30.mlp.switch_mlp.down_proj.weight": "71ce06da1c1855350ef6536a89350f555c6b7ff08534fb5c1903cf35f9e99a74",
+          "language_model.model.layers.30.mlp.switch_mlp.gate_proj.biases": "6d51808e2bb901f69a02d3362559e5c45c07c6a634df5b4cb1bb97aed69cdcdb",
+          "language_model.model.layers.30.mlp.switch_mlp.gate_proj.scales": "1719d8261f6b6dd7e7020bcbe6fbb8e7972121804fa882e8357e6c8b84ff1a8e",
+          "language_model.model.layers.30.mlp.switch_mlp.gate_proj.weight": "20b3f23fe78bc870920ec67f0ab1b43b40e5037ab5d45be240ce336396d01cbb",
+          "language_model.model.layers.30.mlp.switch_mlp.up_proj.biases": "6823a6874aa06bef91bed45af06785c92e1b710472ac5bb80918a9b9091a0c4c",
+          "language_model.model.layers.30.mlp.switch_mlp.up_proj.scales": "aa7fb70f8f1dc50369b78c80323113bbfd1f21aac21b393564faf68941dd36ec",
+          "language_model.model.layers.30.mlp.switch_mlp.up_proj.weight": "fe0ba9eece5b8e2fc0879943f2e5cd3f2c216b0962fc9d846bc8217aa4948d09"
+        },
+        "total_experts": 256
+      },
+      "native": {
+        "measurements": [
+          {
+            "debug_checksum": 0.0,
+            "debug_max_error": 0.0,
+            "debug_reference_checksum": 0.0,
+            "max_absolute_error": 0.02,
+            "median_gpu_micros": 210.708,
+            "median_wall_micros": 440.625,
+            "output_checksum": -1.246,
+            "reference_checksum": -0.03,
+            "rmse": 0.006,
+            "threadgroups": 32,
+            "threads_per_threadgroup": 512,
+            "trials": [
+              {
+                "gpu_micros": 308.5,
+                "wall_micros": 710.458
+              },
+              {
+                "gpu_micros": 209.375,
+                "wall_micros": 440.625
+              },
+              {
+                "gpu_micros": 210.583,
+                "wall_micros": 413.916
+              },
+              {
+                "gpu_micros": 210.708,
+                "wall_micros": 424.208
+              },
+              {
+                "gpu_micros": 215.542,
+                "wall_micros": 448.0
+              }
+            ],
+            "two_stage": true,
+            "weight_bytes": 12582912,
+            "weight_gib_per_second": 59.717
+          }
+        ],
+        "protocol": {
+          "bits": "q4",
+          "dataset_loaded": true,
+          "groups": 32,
+          "schedule": "two-stage",
+          "selected_experts": [
+            3,
+            17,
+            29,
+            42,
+            50,
+            61,
+            7,
+            55
+          ],
+          "total_experts": 256,
+          "trials": 5,
+          "warmups": 2
+        }
+      }
+    },
+    {
+      "layer": 39,
+      "manifest": {
+        "bits": 4,
+        "down_shape": [
+          256,
+          2048,
+          64
+        ],
+        "gate_up_shape": [
+          256,
+          1024,
+          256
+        ],
+        "layer": 39,
+        "model_name": "Ornith-1.5-35B-A3B-MLX-4bit",
+        "note": "temporary derived artifact; model weights are not committed",
+        "output_bytes": 452989032,
+        "output_sha256": "d4278a5f0174da870d5d11c61baa79cf9a17dd401bed78f064ed8b56b9b9bdeb",
+        "schema_version": 1,
+        "selected_experts": [
+          3,
+          17,
+          29,
+          42,
+          50,
+          61,
+          7,
+          55
+        ],
+        "tensor_sha256": {
+          "language_model.model.layers.39.mlp.switch_mlp.down_proj.biases": "bfeb4e235e16505130084de12e625338a8e07c7315739f75133a1fe4730f16c3",
+          "language_model.model.layers.39.mlp.switch_mlp.down_proj.scales": "bde067a59fda7a3aef40024da4f5f63ee9607cd0908b4dd1f8e3070352746841",
+          "language_model.model.layers.39.mlp.switch_mlp.down_proj.weight": "dad3fc45f14d7893e66d4f39405a9bce8edb3eec70059b5d7c5c1cc58b733351",
+          "language_model.model.layers.39.mlp.switch_mlp.gate_proj.biases": "8ca4f7bd768702edc7c3e36e1dedb35bf4c86687fa0c0f09c962020aad8f8697",
+          "language_model.model.layers.39.mlp.switch_mlp.gate_proj.scales": "ddad942c884f3b84187ec010cf544374a43b2a409c9657e36230511fb7312e83",
+          "language_model.model.layers.39.mlp.switch_mlp.gate_proj.weight": "be01948c292d0c2a1fd28b064b4edd02eec8d12c3d7a6775d9e34d7001161acc",
+          "language_model.model.layers.39.mlp.switch_mlp.up_proj.biases": "fba51ca64f0b814c0428ebdb4e41a153cdbeb6e80d2a56b89a5fac0f145dc5b1",
+          "language_model.model.layers.39.mlp.switch_mlp.up_proj.scales": "fbf93c4023f3fa80ab17d1927da8bf21edb5a5eac44da0833373555342587eca",
+          "language_model.model.layers.39.mlp.switch_mlp.up_proj.weight": "b27846bc4d08e8b129aa03e1dcc88e7922f8314af62725be4f984fbf4665b17b"
+        },
+        "total_experts": 256
+      },
+      "native": {
+        "measurements": [
+          {
+            "debug_checksum": 0.0,
+            "debug_max_error": 0.0,
+            "debug_reference_checksum": 0.0,
+            "max_absolute_error": 0.027,
+            "median_gpu_micros": 213.75,
+            "median_wall_micros": 448.208,
+            "output_checksum": 2.18,
+            "reference_checksum": 0.031,
+            "rmse": 0.009,
+            "threadgroups": 32,
+            "threads_per_threadgroup": 512,
+            "trials": [
+              {
+                "gpu_micros": 213.625,
+                "wall_micros": 481.209
+              },
+              {
+                "gpu_micros": 212.5,
+                "wall_micros": 436.917
+              },
+              {
+                "gpu_micros": 217.833,
+                "wall_micros": 448.208
+              },
+              {
+                "gpu_micros": 219.0,
+                "wall_micros": 480.833
+              },
+              {
+                "gpu_micros": 213.75,
+                "wall_micros": 446.875
+              }
+            ],
+            "two_stage": true,
+            "weight_bytes": 12582912,
+            "weight_gib_per_second": 58.867
+          }
+        ],
+        "protocol": {
+          "bits": "q4",
+          "dataset_loaded": true,
+          "groups": 32,
+          "schedule": "two-stage",
+          "selected_experts": [
+            3,
+            17,
+            29,
+            42,
+            50,
+            61,
+            7,
+            55
+          ],
+          "total_experts": 256,
+          "trials": 5,
+          "warmups": 2
+        }
+      }
+    }
+  ],
+  "schema_version": 1
+}

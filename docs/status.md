@@ -49,6 +49,14 @@ Packed routed gate/up proved that M1 batch-1 MoE loses enough time in repeated g
 
 MLX core's chunk-8 GDN improved 8K prefill by about 5.6% but changed greedy IDs, so it is not in the exact runtime.
 
+## Native C++/Metal track
+
+A native feasibility track is now active. A 4 GiB streaming probe killed the single-workgroup whole-token idea: 1 workgroup × 1,024 threads reached 30.95 GiB/s versus 370.34 GiB/s (about 397.7 GB/s) for 32 workgroups × 256 threads.
+
+A 32-workgroup weight-major affine QMV is numerically validated for q4/q8. Resolving the selected expert once per SIMD group instead of once per output row reduced a scattered top-8 q8 gate/up projection from about 222 μs to 107 μs. The first whole-layer channel-shard megakernel was rejected: it repeated hidden-row loops per channel shard and took about 1.07 ms for the synthetic q4 routed layer.
+
+The current native candidate is a two-stage command-buffer schedule: fused gate/up + SwiGLU into a compact selected-expert intermediate, followed by down projection and router-weighted combine. It now passes real Ornith layer-0 tensors and a 40-layer routed-MoE sweep: median layer GPU time is 214.6 μs (q4) and 255.5 μs (q8), with low outliers retained in the raw records. These are routed-MoE-only timings, not end-to-end decode or exact greedy claims. A first scalar 4D prefill QMM was also rejected: its exact r256 kernel remained slower than a shape-matched MLX control.
+
 ## Milestone
 
 **M1 — first exact model-specific execution optimization.**
@@ -59,14 +67,18 @@ MLX core's chunk-8 GDN improved 8K prefill by about 5.6% but changed greedy IDs,
 2. extend exact and external frontiers to 4K, 16K, 32K, 64K, and 128K;
 3. run the multi-turn Python/TypeScript repository workload;
 4. implement complete in-memory GDN+KV prefix restore and measure agent-turn TTFT;
-5. microbenchmark M1 quantized-qmv tile/SIMD configurations before committing to a native Metal kernel.
+5. load real GDN and attention tensors into native probes;
+6. replace the rejected scalar prefill tile with a simdgroup matrix/ALU 4D kernel;
+7. build the full 40-layer native command graph and measure 1K/8K prefill.
 
 ## Next high-value actions
 
 - Add a stateful multi-turn benchmark with complete messages, tools, and reused-prefix accounting.
 - Compare Runnel exact 4-bit decode against oMLX's 75 tok/s observation.
-- Determine whether expert qmv is bandwidth-limited or launch-limited using evaluated component and Metal capture data.
+- Compare the real-layer two-stage native schedule against pinned MLX per layer.
+- Design a matrix/tensor-native 4D prefill kernel after the scalar tile gate failed.
 - Build direct full-state GDN+KV snapshot/restore tests.
+- Establish greedy-ID parity before labeling any native reduction-order change exact.
 - Add package/release CI only after the exact runtime path and result schema stabilize.
 
 ## Blockers/risks
@@ -75,4 +87,5 @@ MLX core's chunk-8 GDN improved 8K prefill by about 5.6% but changed greedy IDs,
 - `xctrace` on this macOS/Xcode combination hung while saving traces; MLX Metal capture and targeted synchronization are the fallback.
 - GPU counters and joules/token still require a reliable `powermetrics` capture protocol.
 - GGUF and community mixed-bit checkpoints are not quality-equivalent to the 8/4-bit targets.
+- The native two-stage MoE path currently changes floating-point reduction order and is a numerical baseline; it has no greedy-token parity claim.
 - No native MTP tensor exists in the exact checkpoint; speculative work requires a separate drafter and hybrid rollback implementation.
