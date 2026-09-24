@@ -1,0 +1,109 @@
+{
+  "correctness": {
+    "max_absolute_error": 0.001909494400024414,
+    "output_checksum": 19.29180908203125,
+    "reference": "vectorized CPU unpack/dequant/dot",
+    "reference_checksum": 19.294689335947623,
+    "rmse": 0.0003542006597854197,
+    "status": "matched"
+  },
+  "created_at_utc": "2026-09-23T18:12:20.768209+00:00",
+  "engine": {
+    "mlx_version": "0.32.2",
+    "name": "mlx.quantized_matmul",
+    "runtime_version": "0.32.0"
+  },
+  "protocol": {
+    "batch_size": 1,
+    "bits": 8,
+    "dataset_sha256": "d12d0598bba4eeb764a1d10ddc30a101e62f61c55bd4ddb391fe215333770482",
+    "group_size": 64,
+    "output_size": 512,
+    "reduction_size": 2048,
+    "sampling": null,
+    "semantic_mode": "baseline",
+    "transpose": true,
+    "trials_requested": 15,
+    "warmups": 3
+  },
+  "schema_version": 1,
+  "summary": {
+    "peak_memory_gb": {
+      "mad": 0.0,
+      "max": 0.001128,
+      "median": 0.001128,
+      "min": 0.001124,
+      "n": 15
+    },
+    "successful_trials": 15,
+    "wall_micros": {
+      "mad": 14.833,
+      "max": 409.166,
+      "median": 295.958,
+      "min": 272.917,
+      "n": 15
+    }
+  },
+  "trials": [
+    {
+      "peak_memory_gb": 0.001124,
+      "wall_micros": 321.625
+    },
+    {
+      "peak_memory_gb": 0.001128,
+      "wall_micros": 333.667
+    },
+    {
+      "peak_memory_gb": 0.001128,
+      "wall_micros": 291.708
+    },
+    {
+      "peak_memory_gb": 0.001128,
+      "wall_micros": 287.417
+    },
+    {
+      "peak_memory_gb": 0.001128,
+      "wall_micros": 300.333
+    },
+    {
+      "peak_memory_gb": 0.001128,
+      "wall_micros": 295.958
+    },
+    {
+      "peak_memory_gb": 0.001128,
+      "wall_micros": 272.917
+    },
+    {
+      "peak_memory_gb": 0.001128,
+      "wall_micros": 289.5
+    },
+    {
+      "peak_memory_gb": 0.001128,
+      "wall_micros": 310.791
+    },
+    {
+      "peak_memory_gb": 0.001128,
+      "wall_micros": 292.792
+    },
+    {
+      "peak_memory_gb": 0.001128,
+      "wall_micros": 278.333
+    },
+    {
+      "peak_memory_gb": 0.001128,
+      "wall_micros": 315.167
+    },
+    {
+      "peak_memory_gb": 0.001128,
+      "wall_micros": 409.166
+    },
+    {
+      "peak_memory_gb": 0.001128,
+      "wall_micros": 359.25
+    },
+    {
+      "peak_memory_gb": 0.001128,
+      "wall_micros": 285.875
+    }
+  ]
+}

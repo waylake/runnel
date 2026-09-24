@@ -1,0 +1,5 @@
+{
+  "protocol": {"bits": "q8", "total_experts": 256, "selected_experts": [3, 17, 29, 42, 50, 61, 7, 55], "groups": 32, "schedule": "two-stage", "dataset_loaded": true, "warmups": 3, "trials": 10},  "measurements": [
+    {"threadgroups": 32, "threads_per_threadgroup": 512, "weight_bytes": 25165824, "two_stage": true, "weight_gib_per_second": 98.803, "median_wall_micros": 499.125, "median_gpu_micros": 254.708, "output_checksum": -1.022, "reference_checksum": 0.090, "max_absolute_error": 0.009, "rmse": 0.003, "debug_checksum": 0.000, "debug_reference_checksum": 0.000, "debug_max_error": 0.000, "trials": [{"wall_micros": 511.291, "gpu_micros": 256.292}, {"wall_micros": 501.291, "gpu_micros": 253.125}, {"wall_micros": 502.625, "gpu_micros": 254.458}, {"wall_micros": 471.542, "gpu_micros": 255.000}, {"wall_micros": 495.666, "gpu_micros": 255.333}, {"wall_micros": 500.375, "gpu_micros": 252.750}, {"wall_micros": 494.459, "gpu_micros": 254.958}, {"wall_micros": 497.875, "gpu_micros": 254.250}, {"wall_micros": 494.083, "gpu_micros": 254.375}, {"wall_micros": 512.125, "gpu_micros": 255.708}]}
+  ]
+}

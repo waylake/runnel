@@ -24,7 +24,7 @@ This path is still MLX-based and is not presented as the final native runtime. I
 
 A native C++/Objective-C++ runtime with direct Metal kernels is the leading candidate because it offers the shortest control path to Metal command buffers, explicit resource residency, counters, and profiling. Python remains outside the hot loop. MLX may supply reference kernels or tensor-loading utilities, but Runnel will not depend on Python for optimized decode.
 
-This choice is provisional until the M0 profile identifies where time is actually spent. Evidence can reject it.
+This choice is provisional until the M0 profile identifies where time is actually spent. Evidence can reject it. The current native candidate uses a two-stage command-buffer MoE schedule (gate/up + SwiGLU, then down + router combine) after a one-launch channel-shard megakernel was rejected by measurement. It is still a numerical baseline until greedy parity and full GDN/attention integration are established; see `native/README.md` and Experiments 0010–0011.
 
 ## Execution model to investigate
 

@@ -1,0 +1,53 @@
+{
+  "created_at_utc": "2026-09-23T18:29:20.639540+00:00",
+  "engine": {
+    "mlx_lm_version": "0.32.0",
+    "mlx_version": "0.32.2",
+    "name": "mlx.quantized_matmul"
+  },
+  "protocol": {
+    "bits": 4,
+    "data": "deterministic shape-matched random control; not the native dataset",
+    "group_size": 64,
+    "outputs": 4096,
+    "reduction_size": 2048,
+    "semantic_mode": "baseline",
+    "tokens": 64,
+    "transpose": true,
+    "trials": 7,
+    "warmups": 3
+  },
+  "schema_version": 1,
+  "summary": {
+    "wall_micros": {
+      "mad": 19.541,
+      "max": 1022.208,
+      "median": 960.708,
+      "min": 935.708,
+      "n": 7
+    }
+  },
+  "trials": [
+    {
+      "wall_micros": 1022.208
+    },
+    {
+      "wall_micros": 984.209
+    },
+    {
+      "wall_micros": 960.708
+    },
+    {
+      "wall_micros": 941.167
+    },
+    {
+      "wall_micros": 947.375
+    },
+    {
+      "wall_micros": 974.166
+    },
+    {
+      "wall_micros": 935.708
+    }
+  ]
+}
